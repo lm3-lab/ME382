@@ -1,0 +1,5 @@
+# MD trajectories are large (~140 MB each); regenerate with ./run_all.sh
+shear_demo/out/**/*.shear.dump
+shear_demo/out/**/*.data
+shear_demo/out/**/*.log
+__pycache__/
