@@ -5,9 +5,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-SURFACE, PANEL = "#1a1a19", "#232321"
-TEXT_1, TEXT_2, TEXT_3, GRID = "#ffffff", "#c3c2b7", "#8a897f", "#33332f"
-SERIES = {"perfect": "#3987e5", "edge": "#d95926", "screw": "#199e70"}
+SURFACE, PANEL = "#ffffff", "#ffffff"
+TEXT_1, TEXT_2, TEXT_3, GRID = "#0b0b0b", "#52514e", "#78776f", "#e3e2dd"
+SERIES = {"perfect": "#2a78d6", "edge": "#eb6834", "screw": "#1baf7a"}
 LABEL = {"perfect": "perfect crystal (no dislocation)",
          "edge": "one edge dislocation",
          "screw": "one screw dislocation"}

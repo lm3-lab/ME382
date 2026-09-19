@@ -5,12 +5,29 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-SURFACE, PANEL = "#1a1a19", "#232321"
-TEXT_1, TEXT_2, TEXT_3, GRID = "#ffffff", "#c3c2b7", "#8a897f", "#33332f"
-CLEAN, PINNED = "#d95926", "#3987e5"
+SURFACE, PANEL = "#ffffff", "#ffffff"
+TEXT_1, TEXT_2, TEXT_3, GRID = "#0b0b0b", "#52514e", "#78776f", "#e3e2dd"
+CLEAN, PINNED = "#eb6834", "#2a78d6"
 
 G_MEASURED = 68.7      # GPa, from shear_demo/src/check_modulus.py
 B = 2.4728             # A, |a/2[111]|
+
+
+def break_away(g, t, floor):
+    """Mean of the sawtooth maxima -- the stress at which the dislocation
+    actually escapes the particle.  The median of the whole curve mixes those
+    peaks with the free-glide stretches in between, and so understates it."""
+    k = np.ones(3) / 3.0
+    ts = np.convolve(t, k, mode="same")
+    pk = [i for i in range(3, len(ts) - 3)
+          if ts[i] == max(ts[i - 3:i + 4]) and ts[i] > floor]
+    sel = []
+    for i in pk:
+        if not sel or i - sel[-1] > 5:
+            sel.append(i)
+        elif ts[i] > ts[sel[-1]]:
+            sel[-1] = i
+    return np.array(sel, dtype=int)
 
 
 def orowan_bks(G, b, D, L):
@@ -46,6 +63,8 @@ def main():
     tp, pp = flow(dp)
     channel = args.lz - args.diameter
     t_or = orowan_bks(G_MEASURED, B, args.diameter, channel)
+    sel = break_away(dp[:, 1], dp[:, 2], floor=0.5 * pp)
+    t_break = float(np.mean(dp[sel, 2])) if len(sel) else float("nan")
 
     fig, ax = plt.subplots(figsize=(11, 6.6), dpi=150, facecolor=SURFACE)
     ax.set_facecolor(PANEL)
@@ -55,20 +74,24 @@ def main():
             label="same dislocation, one 2.4 nm hard particle",
             solid_capstyle="round")
 
+    ax.plot(dp[sel, 1], dp[sel, 2], "o", color=PINNED, ms=8, mec="#ffffff",
+            mew=1.5, zorder=5)
     ax.axhline(tc, color=CLEAN, lw=1.0, ls=(0, (5, 4)), alpha=0.65)
-    ax.axhline(tp, color=PINNED, lw=1.0, ls=(0, (5, 4)), alpha=0.65)
+    ax.axhline(t_break, color=PINNED, lw=1.0, ls=(0, (5, 4)), alpha=0.65)
     ax.axhline(t_or, color=TEXT_3, lw=1.0, ls=(0, (2, 3)), alpha=0.8)
 
     ymax = max(pp, t_or) * 1.18
-    ax.annotate(f"flow stress with the particle:  {tp:.2f} GPa",
-                xy=(dp[-1, 1] * 0.99, tp), xytext=(dp[-1, 1] * 0.99, tp + ymax * 0.045),
+    ax.annotate(f"break-away stress:  {t_break:.2f} GPa "
+                f"({len(sel)} escapes)",
+                xy=(dp[-1, 1] * 0.99, t_break),
+                xytext=(dp[-1, 1] * 0.99, t_break + ymax * 0.03),
                 color=PINNED, fontsize=11.5, fontweight="bold", ha="right")
     ax.annotate(f"clear path:  {tc:.2f} GPa",
                 xy=(dc[-1, 1] * 0.99, tc), xytext=(dc[-1, 1] * 0.99, tc + ymax * 0.035),
                 color=CLEAN, fontsize=11.5, fontweight="bold", ha="right")
     ax.annotate(f"Orowan estimate (Bacon–Kocks–Scattergood)  {t_or:.2f} GPa",
-                xy=(dp[-1, 1] * 0.02, t_or), xytext=(dp[-1, 1] * 0.02, t_or + ymax * 0.035),
-                color=TEXT_2, fontsize=11, ha="left")
+                xy=(dp[-1, 1] * 0.99, t_or), xytext=(dp[-1, 1] * 0.99, t_or + ymax * 0.025),
+                color=TEXT_2, fontsize=11, ha="right")
 
     ax.set_xlabel("shear strain  γ", color=TEXT_2, fontsize=12.5)
     ax.set_ylabel("resolved shear stress  τ  (GPa)", color=TEXT_2, fontsize=12.5)
@@ -93,10 +116,11 @@ def main():
           f"free channel L = {channel:.1f} A")
     print(f"flow stress, clear path      = {tc:6.2f} GPa   (peak {pc:.2f})")
     print(f"flow stress, with particle   = {tp:6.2f} GPa   (peak {pp:.2f})")
-    print(f"strengthening increment      = {tp-tc:6.2f} GPa "
-          f"-> {tp/tc:.0f}x the unobstructed flow stress")
+    print(f"break-away stress            = {t_break:6.2f} GPa "
+          f"over {len(sel)} escape events")
+    print(f"  -> {t_break/tc:.0f}x the stress needed with a clear path")
     print(f"Orowan estimate (BKS)        = {t_or:6.2f} GPa "
-          f"({100*tp/t_or:.0f} % of it measured)")
+          f"(measured / predicted = {t_break/t_or:.2f})")
     print("wrote", args.png)
 
 

@@ -137,3 +137,14 @@ core and the surfaces.
   temperature while the edge's barely moves. That asymmetry is the origin of the
   strong temperature dependence of the yield strength of BCC metals, and is
   visible here as the gap between the orange and green curves.
+
+
+## Rendering notes
+
+The movies are drawn on a white background with the bulk lattice hidden, so the
+dislocation line, the grips and the cell frame carry the picture. Each panel
+shows the **undeformed supercell** as a dashed outline and the **sheared
+supercell** as a solid one — the growing gap between them is the applied shear
+strain, made visible.
+
+Pass `--bulk` to either renderer to bring the ghost lattice back.

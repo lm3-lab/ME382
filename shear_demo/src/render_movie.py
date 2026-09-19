@@ -20,16 +20,19 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dumpio import read_frames
 
 # ---------------------------------------------------------------- palette ---
-SURFACE   = "#1a1a19"
-PANEL     = "#232321"
-TEXT_1    = "#ffffff"
-TEXT_2    = "#c3c2b7"
-TEXT_3    = "#8a897f"
-GRID      = "#33332f"
-BULK      = "#55544d"          # ghost lattice
-GRIP      = "#7e7d72"          # the loading platens
-# categorical slots 1-3, dark-mode steps (validated all-pairs)
-SERIES = {"perfect": "#3987e5", "edge": "#d95926", "screw": "#199e70"}
+SURFACE   = "#ffffff"
+PANEL     = "#ffffff"
+TEXT_1    = "#0b0b0b"
+TEXT_2    = "#52514e"
+TEXT_3    = "#78776f"
+GRID      = "#e3e2dd"
+BULK      = "#c9c8c1"          # ghost lattice (off by default)
+GRIP      = "#b0afa5"          # the loading platens
+FRAME_REF = "#c9c8c1"          # undeformed supercell
+FRAME_DEF = "#6f6e66"          # the supercell as the grips have sheared it
+PARTICLE  = "#7d7c72"          # an inert obstacle: a neutral, not a series hue
+# categorical slots 1-3, light-mode steps (validated all-pairs)
+SERIES = {"perfect": "#2a78d6", "edge": "#eb6834", "screw": "#1baf7a"}
 
 LABEL = {
     "perfect": "perfect crystal",
@@ -63,6 +66,31 @@ def project(p, M, centre):
 
 BOX_EDGES = [(0, 1), (1, 3), (3, 2), (2, 0), (4, 5), (5, 7), (7, 6), (6, 4),
              (0, 4), (1, 5), (2, 6), (3, 7)]
+
+
+def edge_points(corners, n=24):
+    """Box edges as one polyline, NaN-separated, subdivided so that the
+    piecewise shear below shows up as a visible bend."""
+    segs = []
+    for i, j in BOX_EDGES:
+        a, b = corners[i], corners[j]
+        t = np.linspace(0.0, 1.0, n)[:, None]
+        segs.append(a + (b - a) * t)
+        segs.append(np.full((1, 3), np.nan))
+    return np.vstack(segs)
+
+
+def shear_frame(pts, gamma, Ly, slab, h):
+    """Apply the imposed grip motion to a set of points.
+
+    The lower grip is held, the upper grip has translated by gamma*h, and the
+    crystal between them is sheared uniformly -- so the drawn cell shows the
+    applied strain directly, with the two rigid grips staying square.
+    """
+    f = np.clip((pts[:, 1] - slab) / max(Ly - 2.0 * slab, 1e-9), 0.0, 1.0)
+    out = pts.copy()
+    out[:, 0] = out[:, 0] + gamma * h * f
+    return out
 
 
 def box_corners(L):
@@ -112,6 +140,9 @@ def main():
     ap.add_argument("--temp", type=float, default=300.0)
     ap.add_argument("--rate", type=float, default=1.0e9)
     ap.add_argument("--max-frames", type=int, default=0)
+    ap.add_argument("--bulk", action="store_true",
+                    help="also draw the (ghost) bulk lattice; off by default so "
+                         "the dislocation and the supercell frame stand alone")
     args = ap.parse_args()
 
     data, stress = {}, {}
@@ -144,7 +175,9 @@ def main():
     M = make_view()
     centre = L / 2.0
     corners = box_corners(L)
-    cx, cy, _ = project(corners, M, centre)
+    hgrip = L[1] - args.slab                  # grip centre-to-centre, as loaded
+    sheared = shear_frame(corners, gmax, L[1], args.slab, hgrip)
+    cx, cy, _ = project(np.vstack([corners, sheared]), M, centre)
     pad = 0.04 * max(np.ptp(cx), np.ptp(cy))
     xlim = [cx.min() - pad, cx.max() + pad]
     ylim = [cy.min() - pad, cy.max() + pad]
@@ -236,11 +269,14 @@ def main():
                                  family="monospace"))
         arts.append({})
 
-    # static box wireframe per panel
+    # the undeformed supercell, drawn once, plus the sheared cell which is
+    # redrawn every frame -- together they show the applied strain
+    ref_pts = edge_points(corners)
+    rx, ry, _ = project(ref_pts, M, centre)
+    cell_art = []
     for ax in axes3d:
-        for i, j in BOX_EDGES:
-            px, py, _ = project(corners[[i, j]], M, centre)
-            ax.plot(px, py, color=GRID, lw=1.0, zorder=0)
+        ax.plot(rx, ry, color=FRAME_REF, lw=1.0, ls=(0, (4, 3)), zorder=0)
+        cell_art.append(ax.plot([], [], color=FRAME_DEF, lw=1.5, zorder=1)[0])
 
     import imageio_ffmpeg
     writer = imageio_ffmpeg.write_frames(
@@ -253,16 +289,17 @@ def main():
     for k in range(nf):
         for ax, c, ttl, val, store in zip(axes3d, CASES, panel_ttl, panel_val, arts):
             fr = data[c][k]
-            pts = np.vstack([fr["grip"], fr["bulk"], fr["defect"]])
-            kind = np.concatenate([np.zeros(len(fr["grip"]), int),
-                                   np.ones(len(fr["bulk"]), int),
-                                   np.full(len(fr["defect"]), 2)])
+            empty = np.empty((0, 3))
+            groups = [fr["grip"], fr["bulk"] if args.bulk else empty,
+                      fr["precip"], fr["defect"]]
+            pts = np.vstack(groups)
+            kind = np.concatenate([np.full(len(g), i) for i, g in enumerate(groups)])
             sx, sy, sd = project(pts, M, centre)
             order = np.argsort(-sd)
             sx, sy, kind = sx[order], sy[order], kind[order]
-            col = np.array([GRIP, BULK, SERIES[c]], dtype=object)[kind]
-            siz = np.array([3.4, 2.0, 26.0])[kind]
-            alp = np.array([0.62, 0.32, 1.0])[kind]
+            col = np.array([GRIP, BULK, PARTICLE, SERIES[c]], dtype=object)[kind]
+            siz = np.array([3.4, 2.0, 9.0, 26.0])[kind]
+            alp = np.array([0.70, 0.45, 0.95, 1.0])[kind]
 
             for a in store.values():
                 a.remove()
@@ -275,12 +312,15 @@ def main():
             rgba[:, 3] = alp
             store["cloud"].set_facecolor(rgba)
 
-            dsel = kind == 2
+            dsel = kind == 3
             if dsel.any():
                 store["def"] = ax.scatter(sx[dsel], sy[dsel], s=26,
                                           c=SERIES[c], linewidths=0.4,
                                           edgecolors=PANEL, zorder=3)
             g, t = curves[c]
+            dpts = shear_frame(ref_pts, g[k], L[1], args.slab, hgrip)
+            dx_, dy_, _ = project(dpts, M, centre)
+            cell_art[CASES.index(c)].set_data(dx_, dy_)
             val.set_text(f"τ = {t[k]:5.2f} GPa")
 
         # ---- chart

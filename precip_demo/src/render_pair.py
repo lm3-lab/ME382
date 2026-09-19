@@ -19,11 +19,11 @@ _SHEAR_SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "..", "..", "shear_demo", "src")
 sys.path.insert(0, os.path.abspath(_SHEAR_SRC))
 from render_movie import (SURFACE, PANEL, TEXT_1, TEXT_2, TEXT_3, GRID,   # noqa
-                          BULK, GRIP, make_view, project, box_corners,
-                          BOX_EDGES, load_case, _rgb)
+                          BULK, GRIP, PARTICLE, FRAME_REF, FRAME_DEF,
+                          make_view, project, box_corners, BOX_EDGES,
+                          edge_points, shear_frame, load_case, _rgb)
 
-PARTICLE = "#b5b3aa"          # inert obstacle: a neutral, not a series hue
-CLEAN, PINNED = "#d95926", "#3987e5"
+CLEAN, PINNED = "#eb6834", "#2a78d6"     # light-mode categorical slots 2 and 1
 
 
 def main():
@@ -40,6 +40,8 @@ def main():
     ap.add_argument("--temp", type=float, default=300.0)
     ap.add_argument("--rate", type=float, default=1.0e9)
     ap.add_argument("--max-frames", type=int, default=0)
+    ap.add_argument("--bulk", action="store_true",
+                    help="also draw the (ghost) bulk lattice")
     args = ap.parse_args()
 
     spec = [("clean", args.clean_dir, args.clean_case, CLEAN,
@@ -80,7 +82,9 @@ def main():
     M = make_view()
     centre = L / 2.0
     corners = box_corners(L)
-    cx, cy, _ = project(corners, M, centre)
+    hgrip = L[1] - args.slab
+    sheared = shear_frame(corners, gmax, L[1], args.slab, hgrip)
+    cx, cy, _ = project(np.vstack([corners, sheared]), M, centre)
     pad = 0.04 * max(np.ptp(cx), np.ptp(cy))
     xlim = [cx.min() - pad, cx.max() + pad]
     ylim = [cy.min() - pad, cy.max() + pad]
@@ -124,9 +128,12 @@ def main():
                                     shrinkA=0, shrinkB=0))
         ax.text(0.85, 0.955, "grip", transform=ax.transAxes, color=TEXT_3,
                 fontsize=9.5, va="center", ha="left")
-        for i, j in BOX_EDGES:
-            px, py, _ = project(corners[[i, j]], M, centre)
-            ax.plot(px, py, color=GRID, lw=1.0, zorder=0)
+    ref_pts = edge_points(corners)
+    rx, ry, _ = project(ref_pts, M, centre)
+    cell_art = []
+    for ax in axes3d:
+        ax.plot(rx, ry, color=FRAME_REF, lw=1.0, ls=(0, (4, 3)), zorder=0)
+        cell_art.append(ax.plot([], [], color=FRAME_DEF, lw=1.5, zorder=1)[0])
 
     axc.set_facecolor(PANEL)
     axc.set_xlim(0, gmax * 1.10)
@@ -175,7 +182,8 @@ def main():
     for n in range(nf):
         for ax, k, val, store in zip(axes3d, keys, panel_val, arts):
             fr = data[k][n]
-            groups = [fr["grip"], fr["bulk"], fr["precip"], fr["defect"]]
+            groups = [fr["grip"], fr["bulk"] if args.bulk else np.empty((0, 3)),
+                      fr["precip"], fr["defect"]]
             pts = np.vstack(groups)
             kind = np.concatenate([np.full(len(g), i) for i, g in enumerate(groups)])
             sx, sy, sd = project(pts, M, centre)
@@ -183,7 +191,7 @@ def main():
             sx, sy, kind = sx[order], sy[order], kind[order]
             col = np.array([GRIP, BULK, PARTICLE, colors[k]], dtype=object)[kind]
             siz = np.array([3.4, 2.0, 9.0, 26.0])[kind]
-            alp = np.array([0.62, 0.32, 0.95, 1.0])[kind]
+            alp = np.array([0.70, 0.45, 0.95, 1.0])[kind]
 
             for a in store.values():
                 a.remove()
@@ -199,6 +207,9 @@ def main():
                 store["def"] = ax.scatter(sx[d], sy[d], s=26, c=colors[k],
                                           linewidths=0.4, edgecolors=PANEL,
                                           zorder=3)
+            dpts = shear_frame(ref_pts, curves[k][0][n], L[1], args.slab, hgrip)
+            dx_, dy_, _ = project(dpts, M, centre)
+            cell_art[keys.index(k)].set_data(dx_, dy_)
             val.set_text(f"τ = {curves[k][1][n]:5.2f} GPa")
 
         for k in keys:

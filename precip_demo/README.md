@@ -13,6 +13,34 @@ Two runs, side by side:
 
 ![stress-strain](out/precipitate_stress_strain.png)
 
+## Result
+
+The particle turns free glide into a stick-slip cycle. The dislocation is held
+until the stress is high enough to bow it through the channel, escapes leaving a
+loop behind, races round the periodic cell, and is caught again — five times over
+the run, at a remarkably reproducible stress:
+
+| quantity | value |
+|---|---|
+| flow stress, clear path | **0.10 GPa** |
+| **break-away stress against the particle** | **1.58 GPa** — 16× higher |
+| escape events | 5, at γ = 0.032, 0.079, 0.124, 0.170, 0.215 |
+| strain per cycle | Δγ = 0.046, against b/h = 0.044 for one traverse of the cell |
+| Orowan estimate (Bacon–Kocks–Scattergood) | 2.49 GPa — measured/predicted = 0.63 |
+
+The even spacing of the escapes is a useful check in itself: each cycle
+corresponds to the dislocation crossing the cell exactly once, so the plastic
+strain it carries per pass must be b/h, and it is.
+
+Note that the **break-away** stress is the physically meaningful number, not the
+median of the curve. The median (0.82 GPa) averages the peaks together with the
+free-glide stretches between them and so understates the obstacle strength.
+
+Falling at 0.63 of the athermal Orowan estimate is about what one expects at
+300 K: BKS is a zero-temperature continuum result, thermal activation helps the
+line over the barrier, and the logarithmic term is crude for a particle only ten
+Burgers vectors across.
+
 ## Why this is a genuine controlled comparison
 
 The right-hand specimen is built from exactly the same `build_edge(26, 8, 7)`
@@ -87,3 +115,14 @@ Orowan loop left behind after each break-through.
   and can be sheared, bypassed by cross-slip, or climbed over at temperature.
 * One dislocation and one particle is not a microstructure — real strengthening
   is a statistical average over a forest of both.
+
+
+## Rendering notes
+
+The movies are drawn on a white background with the bulk lattice hidden, so the
+dislocation line, the grips and the cell frame carry the picture. Each panel
+shows the **undeformed supercell** as a dashed outline and the **sheared
+supercell** as a solid one — the growing gap between them is the applied shear
+strain, made visible.
+
+Pass `--bulk` to either renderer to bring the ghost lattice back.
