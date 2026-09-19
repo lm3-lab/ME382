@@ -202,7 +202,8 @@ canvas{width:100%;height:100%;display:block;border-radius:5px}
   font:400 11.5px/1 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
 }
 .sw{width:13px;height:13px;border-radius:3px;border:1px solid var(--rule);flex:0 0 auto}
-.sw.line{height:0;border:0;border-top:2.5px solid;border-radius:0;width:15px}
+.sw.line{height:0;border:0;border-top:3px solid;border-radius:0;width:16px}
+.sw.dash{border-top-style:dashed}
 
 /* ---- prose ---- */
 .prose{max-width:66ch}
@@ -354,12 +355,12 @@ summary{
 <section class="panels">
   <div class="panel">
     <h2>What each phase costs</h2>
-    <p class="sub">A string pulled taut underneath both curves. Where it runs straight, the alloy splits into the two phases at its ends.</p>
-    <div class="cwrap"><canvas id="gx" role="img" aria-label="Energy of the liquid and solid against composition, with the taut string drawn underneath"></canvas></div>
+    <p class="sub">The convex hull of the two curves. Where it runs straight, the alloy splits into the two phases at its ends.</p>
+    <div class="cwrap"><canvas id="gx" role="img" aria-label="Energy of the liquid and solid against composition, with the convex hull drawn underneath"></canvas></div>
     <div class="legend">
       <span class="lg"><span class="sw line" style="border-color:var(--liq)"></span>liquid</span>
       <span class="lg"><span class="sw line" style="border-color:var(--sol)"></span>solid</span>
-      <span class="lg"><span class="sw line" style="border-color:var(--hull)"></span>taut string</span>
+      <span class="lg"><span class="sw line dash" style="border-color:var(--hull)"></span>convex hull</span>
     </div>
   </div>
 
@@ -383,11 +384,11 @@ summary{
 at one temperature. The alloy always takes the cheapest option available to it &mdash; and a
 <em>mixture</em> of two phases is an option, costing whatever lies on the straight line joining
 them.</p>
-<p>So imagine running a string underneath both curves and pulling it taut. That is the heavy
-line. Where the string hugs a curve, you get that single phase. Where it leaves the curves and
-runs straight, the alloy separates into the two phases sitting at the ends of that straight
-stretch. The right panel is nothing more than this answer worked out at every temperature and
-stacked up.</p>
+<p>So imagine running a string underneath both curves and pulling it taut. That line is the
+<em>convex hull</em>, drawn dashed in the panel. Where it hugs a curve, you get that single
+phase. Where it leaves the curves and runs straight, the alloy separates into the two phases
+sitting at the ends of that straight stretch. The right panel is nothing more than this answer
+worked out at every temperature and stacked up.</p>
 
 <h2>Why a eutectic forms</h2>
 <p>&Omega;<sub>s</sub> says how much A and B atoms dislike being neighbours in the solid. Leave
@@ -404,7 +405,7 @@ and an alloy can melt lower than either metal it is made from. It is why solder 
 either tin or lead.</p>
 
 <h2>A peritectic is the same picture, rearranged</h2>
-<p>At the eutectic the taut string touches three points at once: the liquid and two solids. What
+<p>At the eutectic the convex hull touches three points at once: the liquid and two solids. What
 decides the reaction is simply their left-to-right order.</p>
 
 <div class="eq">liquid BETWEEN the two solids  &rarr;  eutectic     L &rarr; &alpha; + &beta;
@@ -429,8 +430,8 @@ G_s(x) = &Omega;_s&middot;x(1-x) + RT&middot;s(x)
 
 s(x)   = x&middot;ln x + (1-x)&middot;ln(1-x)</div>
 
-  <p>Equilibrium is the lower convex hull of the two curves &mdash; the taut string, done
-  properly. An invariant is a temperature where one straight segment carries three contacts.</p>
+  <p>Equilibrium is the lower convex hull of the two curves. An invariant is a temperature where
+  one straight segment carries three contacts at once.</p>
 
   <h3>Melting points are not what makes a peritectic</h3>
   <p>It is often said that a large difference in melting <em>points</em> turns a eutectic into a
@@ -648,7 +649,7 @@ function drawGx(T, p) {
   ctx.save();
   ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
   const curve = (arr, col) => {
-    ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.beginPath();
+    ctx.strokeStyle = col; ctx.lineWidth = 2.6; ctx.beginPath();
     for (let i = 0; i < N; i++) { const x = sx(X[i]), y = sy(arr[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
     ctx.stroke();
   };
@@ -656,9 +657,12 @@ function drawGx(T, p) {
 
   build(T, p, G, TAG);
   const nh = hull(G), tl = ties(nh, TAG);
-  ctx.strokeStyle = P.hull; ctx.lineWidth = 2.4; ctx.beginPath();
+  ctx.strokeStyle = P.hull; ctx.lineWidth = 3.4;
+  ctx.setLineDash([9, 5]);
+  ctx.beginPath();
   for (let k = 0; k < nh; k++) { const i = HULL[k], x = sx(X[i]), y = sy(G[i]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
   ctx.stroke();
+  ctx.setLineDash([]);
 
   for (const t of tl) {
     const ss = t.ti === 1 && t.tj === 1;
