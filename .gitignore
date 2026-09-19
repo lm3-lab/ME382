@@ -1,7 +1,8 @@
 # MD trajectories are large (~120 MB each, ~21 MB gzipped even when thinned);
-# regenerate them with ./run_all.sh
-shear_demo/out/**/*.shear.dump
-shear_demo/out/**/*.dump.gz
-shear_demo/out/**/*.data
-shear_demo/out/**/*.log
+# regenerate them with the run_all.sh in each demo folder.
+**/out/**/*.shear.dump
+**/out/**/*.dump.gz
+# built input structures - regenerate from the build_* scripts
+**/out/**/*.data
+**/out/**/*.log
 __pycache__/
