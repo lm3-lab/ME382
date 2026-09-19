@@ -1,5 +1,7 @@
-# MD trajectories are large (~140 MB each); regenerate with ./run_all.sh
+# MD trajectories are large (~120 MB each, ~21 MB gzipped even when thinned);
+# regenerate them with ./run_all.sh
 shear_demo/out/**/*.shear.dump
+shear_demo/out/**/*.dump.gz
 shear_demo/out/**/*.data
 shear_demo/out/**/*.log
 __pycache__/
