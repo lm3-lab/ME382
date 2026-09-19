@@ -24,14 +24,10 @@
   --sol:#3d7ea6;
   --inv:#b0344f;
 
-  --c-liq:#f0c08a;
-  --c-sol:#9dc2d8;
-  --c-alpha:#a9cfe2;
-  --c-beta:#6d9bbd;
-  --c-la:#e6bda0;
-  --c-lb:#d3ae9e;
-  --c-ab:#c3c9dc;
-  --c-ls:#dcc0a6;
+  --c-liq:#efbe86;
+  --c-sol:#93bdd6;
+  --c-ls:#ffffff;
+  --c-ss:#c6c0db;
 
   --hull:#171b20;
   --grid:#dfe4ea;
@@ -55,12 +51,8 @@
 
     --c-liq:#6b4a25;
     --c-sol:#2d4a5d;
-    --c-alpha:#33566b;
-    --c-beta:#1f3c4e;
-    --c-la:#5d4433;
-    --c-lb:#4a3a35;
-    --c-ab:#3a3f52;
-    --c-ls:#54402c;
+    --c-ls:#dbe4ea;
+    --c-ss:#474168;
 
     --hull:#eef1f4;
     --grid:#262d35;
@@ -84,12 +76,8 @@
 
   --c-liq:#6b4a25;
   --c-sol:#2d4a5d;
-  --c-alpha:#33566b;
-  --c-beta:#1f3c4e;
-  --c-la:#5d4433;
-  --c-lb:#4a3a35;
-  --c-ab:#3a3f52;
-  --c-ls:#54402c;
+  --c-ls:#dbe4ea;
+  --c-ss:#474168;
 
   --hull:#eef1f4;
   --grid:#262d35;
@@ -296,10 +284,8 @@ summary{
 <header class="mast">
   <p class="eyebrow">ME 382 · Binary phase equilibria</p>
   <h1>Lens, Eutectic, Peritectic</h1>
-  <p class="standfirst">Three phase-diagram topologies from one regular-solution model with a single adjustable
-  parameter. Everything on this page is the lower convex hull of two Gibbs curves, recomputed as you drag.
-  What separates a eutectic from a peritectic is not a different construction &mdash; it is the order in which
-  three points sit along the composition axis.</p>
+  <p class="standfirst">Slide one number and watch a plain freezing range turn into a eutectic.
+  Both panels are worked out live from energy curves as you drag &mdash; nothing is drawn by hand.</p>
 </header>
 
 <section class="controls" aria-label="Model controls">
@@ -367,138 +353,127 @@ summary{
 
 <section class="panels">
   <div class="panel">
-    <h2>Gibbs energy and its lower convex hull</h2>
-    <p class="sub">Two curves, one hull. A straight stretch of hull is a tie-line; its endpoints are the phases in equilibrium.</p>
-    <div class="cwrap"><canvas id="gx" role="img" aria-label="Gibbs energy versus composition with the lower convex hull drawn over it"></canvas></div>
+    <h2>What each phase costs</h2>
+    <p class="sub">A string pulled taut underneath both curves. Where it runs straight, the alloy splits into the two phases at its ends.</p>
+    <div class="cwrap"><canvas id="gx" role="img" aria-label="Energy of the liquid and solid against composition, with the taut string drawn underneath"></canvas></div>
     <div class="legend">
-      <span class="lg"><span class="sw line" style="border-color:var(--liq)"></span>G<sub>l</sub> liquid</span>
-      <span class="lg"><span class="sw line" style="border-color:var(--sol)"></span>G<sub>s</sub> solid</span>
-      <span class="lg"><span class="sw line" style="border-color:var(--hull)"></span>hull / tie-lines</span>
+      <span class="lg"><span class="sw line" style="border-color:var(--liq)"></span>liquid</span>
+      <span class="lg"><span class="sw line" style="border-color:var(--sol)"></span>solid</span>
+      <span class="lg"><span class="sw line" style="border-color:var(--hull)"></span>taut string</span>
     </div>
   </div>
 
   <div class="panel">
     <h2>The phase diagram this produces</h2>
-    <p class="sub">Each row is one temperature, coloured by the hull label at every composition. Nothing here is drawn by hand.</p>
+    <p class="sub">One row per temperature, coloured by which phases are present. Nothing here is drawn by hand.</p>
     <div class="cwrap"><canvas id="pd" role="img" aria-label="Temperature versus composition phase diagram computed from the hull"></canvas></div>
     <div class="legend">
-      <span class="lg"><span class="sw" style="background:var(--c-liq)"></span>L</span>
-      <span class="lg"><span class="sw" style="background:var(--c-alpha)"></span>&alpha;</span>
-      <span class="lg"><span class="sw" style="background:var(--c-beta)"></span>&beta;</span>
-      <span class="lg"><span class="sw" style="background:var(--c-la)"></span>L+&alpha;</span>
-      <span class="lg"><span class="sw" style="background:var(--c-lb)"></span>L+&beta;</span>
-      <span class="lg"><span class="sw" style="background:var(--c-ab)"></span>&alpha;+&beta;</span>
+      <span class="lg"><span class="sw" style="background:var(--c-liq)"></span>liquid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-sol)"></span>solid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-ls)"></span>liquid + solid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-ss)"></span>two solids</span>
     </div>
   </div>
 </section>
 
 <div class="prose">
 
-<h2>The model</h2>
-<p>Two phases &mdash; a liquid and a single solid solution &mdash; both regular, with the solid referenced to zero
-at each pure end so the melting terms carry all the temperature dependence.</p>
+<h2>What you are looking at</h2>
+<p>The left panel shows how much energy the liquid and the solid cost at each composition,
+at one temperature. The alloy always takes the cheapest option available to it &mdash; and a
+<em>mixture</em> of two phases is an option, costing whatever lies on the straight line joining
+them.</p>
+<p>So imagine running a string underneath both curves and pulling it taut. That is the heavy
+line. Where the string hugs a curve, you get that single phase. Where it leaves the curves and
+runs straight, the alloy separates into the two phases sitting at the ends of that straight
+stretch. The right panel is nothing more than this answer worked out at every temperature and
+stacked up.</p>
 
-<div class="eq">G_l(x) = (1-x)&middot;&Delta;H_A&middot;(1 - T/Tm_A)
-       + x&middot;&Delta;H_B&middot;(1 - T/Tm_B)
-       + &Omega;_l&middot;x(1-x) + RT&middot;s(x)
+<h2>Why a eutectic forms</h2>
+<p>&Omega;<sub>s</sub> says how much A and B atoms dislike being neighbours in the solid. Leave
+it at zero and they mix happily: one solid, one liquid, and freezing happens between two smooth
+curves &mdash; a lens. Slide it up and watch the solid curve grow a hump in the middle, because
+a half-and-half solid now costs extra.</p>
+<p>The liquid has no such hump. So across a band of middle compositions the liquid stays the
+cheapest option even below the melting points of <em>both</em> pure metals: the alloy is still
+molten where either pure metal would already have frozen. Cool further and it finally freezes
+&mdash; into two solids at once, one A-rich and one B-rich, because no single solid is cheap
+enough. The lowest temperature at which any liquid survives is the eutectic.</p>
+<p>That is the whole idea. <em>A solid that resists mixing pushes the freezing point down</em>,
+and an alloy can melt lower than either metal it is made from. It is why solder melts well below
+either tin or lead.</p>
+
+<h2>A peritectic is the same picture, rearranged</h2>
+<p>At the eutectic the taut string touches three points at once: the liquid and two solids. What
+decides the reaction is simply their left-to-right order.</p>
+
+<div class="eq">liquid BETWEEN the two solids  &rarr;  eutectic     L &rarr; &alpha; + &beta;
+liquid OUTSIDE them            &rarr;  peritectic   L + &beta; &rarr; &alpha;</div>
+
+<p>If B melts at a far higher temperature than A, the liquid gets squeezed into the A-rich corner
+while both solids sit well to its right. The liquid is no longer caught between them, so it
+cannot simply split into both. Instead it has to react with the B-rich solid to produce the
+A-rich one. Switch to branch&nbsp;2 above and look at the three dots on the dashed line: the
+orange liquid dot sits to the <em>left</em> of both blue solid dots. That is the signature.</p>
+
+<details>
+  <summary>Beyond the syllabus &mdash; the model, and a claim it corrects</summary>
+
+  <p style="margin-top:8px">The curves come from a regular-solution model, with the solid measured
+  from zero at each pure end:</p>
+
+  <div class="eq">G_l(x) = (1-x)&middot;&Delta;H_A&middot;(1 - T/Tm_A)
+       + x&middot;&Delta;H_B&middot;(1 - T/Tm_B) + RT&middot;s(x)
 
 G_s(x) = &Omega;_s&middot;x(1-x) + RT&middot;s(x)
 
 s(x)   = x&middot;ln x + (1-x)&middot;ln(1-x)</div>
 
-<p>Equilibrium at each temperature is the lower convex hull of the two sampled curves, pooled. A straight
-segment of that hull is a tie-line. An <em>invariant</em> is a temperature at which one segment carries three
-contacts at once &mdash; the moment a liquid and two solids share a common tangent.</p>
+  <p>Equilibrium is the lower convex hull of the two curves &mdash; the taut string, done
+  properly. An invariant is a temperature where one straight segment carries three contacts.</p>
 
-<h2>The whole distinction, in one line</h2>
-<p>At the invariant, call the two solid contacts x<sub>&alpha;</sub> &lt; x<sub>&beta;</sub> and the liquid
-contact x<sub>L</sub>.</p>
+  <h3>Melting points are not what makes a peritectic</h3>
+  <p>It is often said that a large difference in melting <em>points</em> turns a eutectic into a
+  peritectic. That is wrong. Holding the heats of fusion equal at 12 kJ/mol and pushing
+  T<sub>m</sub><sup>B</sup> from 900&nbsp;K to 2400&nbsp;K gives a eutectic in essentially every
+  case &mdash; only two isolated peritectics survive, right at the onset of the solid hump, and
+  they are gone as soon as it widens.</p>
+  <p>What matters is the melting <em>entropy</em>, &Delta;S<sub>m</sub> = &Delta;H<sub>m</sub> /
+  T<sub>m</sub>: 17.1 J/mol/K for A against 28.6 for B in branch&nbsp;2. A large value on B makes
+  that side of the liquidus steep, confining the liquid to the A-rich corner, while the solid hump
+  stays centred at x = 0.5. Open the melting parameters above and test it.</p>
 
-<div class="eq">x_&alpha; &lt; x_L &lt; x_&beta;   &rarr;  EUTECTIC    L &rarr; &alpha; + &beta;
-x_L outside that    &rarr;  PERITECTIC  L + &beta; &rarr; &alpha;</div>
+  <div class="tablewrap">
+  <table id="grid">
+    <caption>Equal heats of fusion, T<sub>m</sub><sup>A</sup> = 700&nbsp;K. If a large melting-point
+    gap produced peritectics, the right-hand columns would fill with them.</caption>
+    <thead><tr><th>T<sub>m</sub><sup>B</sup></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="scanrow">
+    <button class="tbtn" id="rungrid">Recompute in browser</button>
+    <p class="hint" id="gridstat">65 scans, about a second.</p>
+  </div>
 
-<p>Same convex-hull event, same code path, different contact ordering. If the liquid sits between the two
-solids it decomposes into both on cooling. If it sits outside them, it must instead consume one solid to
-make the other. That is the entire difference, and the readout above is computed from exactly this test.</p>
+  <h3>Branch 2, swept</h3>
+  <div class="tablewrap">
+  <table id="sweep">
+    <caption>The peritectic becomes a eutectic exactly where x<sub>L</sub> crosses
+    x<sub>&alpha;</sub>. Near that crossing the two fall within one grid spacing, so
+    &Omega;<sub>s</sub> = 21&ndash;22 is reported as degenerate rather than typed.</caption>
+    <thead><tr><th>&Omega;<sub>s</sub> kJ/mol</th><th>Type</th><th>T / K</th><th>x<sub>&alpha;</sub></th><th>x<sub>L</sub></th><th>x<sub>&beta;</sub></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="scanrow">
+    <button class="tbtn" id="runsweep">Recompute in browser</button>
+    <p class="hint">Recomputing should leave every cell unchanged.</p>
+  </div>
+</details>
 
-<h2>What actually drives a peritectic</h2>
-
-<div class="callout">
-  <span class="tag">Correction to the usual claim</span>
-  <p>It is often said that a large difference in melting <em>points</em> turns a eutectic into a peritectic.
-  That is wrong as stated. Hold the melting enthalpies equal at 12 kJ/mol and push T<sub>m</sub><sup>B</sup>
-  from 900 K all the way to 2400 K, and the system returns a eutectic in essentially every cell &mdash; only two
-  isolated peritectic cells survive, at T<sub>m</sub><sup>B</sup> &ge; 1800 K and right at gap onset
-  (&Omega;<sub>s</sub> = 12), and they are gone by &Omega;<sub>s</sub> = 14. Open the melting parameters above
-  and run it.</p>
-</div>
-
-<p>What matters is asymmetry in the melting <em>entropy</em>, &Delta;S<sub>m</sub> = &Delta;H<sub>m</sub> /
-T<sub>m</sub>:</p>
-
-<div class="eq">A          12000 / 700  = 17.1 J/mol/K
-B (branch 2) 40000 / 1400 = 28.6 J/mol/K</div>
-
-<p>A large &Delta;S<sub>m</sub><sup>B</sup> makes the B-side liquidus steep, which confines the liquid to the
-A-rich corner. Meanwhile the solid miscibility gap is symmetric in this model &mdash; it is always centred on
-x = 0.5. So when the widening gap finally reaches the solidus, both solid contacts lie to the B-rich side of
-the liquid contact, and the reaction is necessarily peritectic. Raising &Omega;<sub>s</sub> widens the gap
-until x<sub>&alpha;</sub> slides left past x<sub>L</sub>, and at that crossing the peritectic becomes a
-eutectic. The two facts have to be read together: a steep liquidus puts the liquid off to one side, and a
-centred gap keeps the solids where they are.</p>
-
-<h3>Also tested, also not the answer</h3>
-<p>A subregular skew on the solid, &Omega;<sub>s</sub>(x) = &Omega;<sub>0</sub> + &Omega;<sub>1</sub>(1-2x)
-with &Omega;<sub>1</sub> up to 24 kJ/mol, shifts x<sub>L</sub> and x<sub>&alpha;</sub> together and never flips
-their order. Skewing the gap is not a route to a peritectic either.</p>
-
-<h2>Branch 2, swept</h2>
-<p>T<sub>m</sub> = 700 / 1400 K, &Delta;H<sub>m</sub> = 12 / 40 kJ/mol, &Omega;<sub>s</sub> stepped through the
-whole transition. The crossover is exactly where x<sub>L</sub> meets x<sub>&alpha;</sub>, as it must be.</p>
-
-<div class="tablewrap">
-<table id="sweep">
-  <caption>Computed by this page's own model at N = 401. Near the crossover the two contacts fall within one
-  grid spacing of each other, so &Omega;<sub>s</sub> = 21&ndash;22 is reported as degenerate rather than typed.</caption>
-  <thead><tr><th>&Omega;<sub>s</sub> kJ/mol</th><th>Type</th><th>T / K</th><th>x<sub>&alpha;</sub></th><th>x<sub>L</sub></th><th>x<sub>&beta;</sub></th></tr></thead>
-  <tbody></tbody>
-</table>
-</div>
-<div class="scanrow">
-  <button class="tbtn" id="runsweep">Recompute in browser</button>
-  <p class="hint">The table ships pre-filled with these values; recomputing should leave every cell unchanged.</p>
-</div>
-
-<h2>The negative result, as a grid</h2>
-<p>Symmetric melting enthalpies (&Delta;H<sub>m</sub> = 12 kJ/mol both ends), T<sub>m</sub><sup>A</sup> = 700 K,
-sweeping T<sub>m</sub><sup>B</sup> against &Omega;<sub>s</sub>. If large &Delta;T<sub>m</sub> produced
-peritectics, the right-hand columns would fill with them. They do not.</p>
-
-<div class="tablewrap">
-<table id="grid">
-  <caption>Run at N = 201 for speed; the two peritectic cells at gap onset are genuine but vanish as soon as
-  the gap widens.</caption>
-  <thead><tr><th>T<sub>m</sub><sup>B</sup></th></tr></thead>
-  <tbody></tbody>
-</table>
-</div>
-<div class="scanrow">
-  <button class="tbtn" id="rungrid">Recompute in browser</button>
-  <p class="hint" id="gridstat">65 invariant scans, about a second.</p>
-</div>
-
-<h2>Notes on the construction</h2>
-<p>Composition is sampled on a uniform grid of N = 401 points. Both phases' points are pooled as
-(x, G, phase) and passed through a monotone-chain lower hull that carries the phase tag along. A hull edge
-counts as a tie-line when it spans more than 1.5 grid steps.</p>
-<p>The invariant is found by cooling until the first solid&ndash;solid tie-line appears on the hull. The
-liquid contact is then read <em>one step above</em> that temperature, never at it: at the invariant itself the
-liquid contact is on the point of vanishing and is numerically degenerate. This detail is easy to get wrong
-in a way that silently reports a lens &mdash; a solid miscibility gap that opens below the solidus produces a
-solid&ndash;solid tie-line with no liquid contact anywhere above it, and that is a lens, not an invariant.</p>
-
-<p class="foot">Regular-solution model, ideal liquid, R = 8.314 J/mol/K. Built to sit alongside the molecular
-dynamics movie; the thermodynamics here is the equilibrium end of what the MD shows kinetically.</p>
+<p class="foot">Regular-solution model, ideal liquid, R = 8.314 J/mol/K. Companion to the
+molecular dynamics demonstration.</p>
 
 </div>
 </div>
@@ -589,28 +564,25 @@ function classify(r) {
 }
 
 /* ---- region codes for the raster ---- */
-const L = 0, SOL = 1, ALPHA = 2, BETA = 3, LA = 4, LB = 5, AB = 6, LS = 7;
-const REGVAR = ["--c-liq", "--c-sol", "--c-alpha", "--c-beta", "--c-la", "--c-lb", "--c-ab", "--c-ls"];
+const L = 0, SOL = 1, LS = 2, SS = 3;
+const REGVAR = ["--c-liq", "--c-sol", "--c-ls", "--c-ss"];
 
+/* alpha and beta are the same solid solution at two different compositions, so
+   they share one colour. Only the NUMBER of phases present changes the shading. */
 function labelRow(T, p, out, g, tag) {
   build(T, p, g, tag);
-  const nh = hull(g), tl = ties(nh, tag), ss = firstSS(tl);
-  const ai = ss ? ss.i : -1, bi = ss ? ss.j : -1;
-  const solidCode = (idx) => ss ? (idx <= ai ? ALPHA : (idx >= bi ? BETA : ALPHA)) : SOL;
+  const nh = hull(g);
   let e = 0;
   for (let k = 0; k < N; k++) {
     while (e < nh - 2 && HULL[e + 1] < k) e++;
-    const i = HULL[e], j = HULL[e + 1] !== undefined ? HULL[e + 1] : i;
+    const i = HULL[e], j = HULL[e + 1];
     if (j - i >= 2) {
-      if (tag[i] === 1 && tag[j] === 1) out[k] = AB;
+      if (tag[i] === 1 && tag[j] === 1) out[k] = SS;
       else if (tag[i] === 0 && tag[j] === 0) out[k] = L;
-      else {
-        const si = tag[i] === 1 ? i : j;
-        out[k] = ss ? (si <= ai ? LA : LB) : LS;
-      }
+      else out[k] = LS;
     } else {
       const nearer = (k - i <= j - k) ? i : j;
-      out[k] = tag[nearer] === 0 ? L : solidCode(nearer);
+      out[k] = tag[nearer] === 0 ? L : SOL;
     }
   }
 }
