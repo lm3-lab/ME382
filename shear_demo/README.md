@@ -15,6 +15,26 @@ They differ only in what they contain:
 
 ![stress-strain](out/stress_strain.png)
 
+## Result
+
+| quantity | value |
+|---|---|
+| elastic shear modulus, G | 68.7 GPa |
+| **ideal shear strength, τ_max** | **9.45 GPa** at γ = 0.157 — that is G/7, right on the Frenkel estimate G/2π |
+| flow stress, one screw dislocation | 0.43 GPa — **22× lower** |
+| flow stress, one edge dislocation | 0.09 GPa — **103× lower** |
+
+The perfect lattice has to shear every bond on the slip plane simultaneously, and
+it holds out to 9.45 GPa before nucleating slip catastrophically — the stress
+collapses by a factor of five in a few tenths of a percent of strain. The two
+crystals that already contain one dislocation never get near that: they start
+flowing almost immediately, because the dislocation only has to break bonds along
+its core, a row at a time.
+
+That the screw is ~5× harder than the edge is the other half of the story, and it
+is specific to BCC: the screw core spreads onto three {110} planes and has to be
+constricted before it can move.
+
 ## Why the three cells are directly comparable
 
 The usual difficulty is that an edge and a screw dislocation need different cell
@@ -61,7 +81,8 @@ Nothing differs between the movies except the character of the dislocation.
 * **Stress** — virial stress of the mobile region. The total force on the upper
   grip is recorded as an independent cross-check (`tau_wall`, which carries a
   constant offset from holding the grip atoms at unrelaxed positions).
-* **Conditions** — 300 K (Langevin), `γ̇ = 1×10⁹ s⁻¹`, 2 fs timestep, to γ = 0.22.
+* **Conditions** — 300 K (Langevin), `γ̇ = 1×10⁹ s⁻¹`, 2 fs timestep, to γ = 0.22
+  (110 000 steps; ~40 min for all three on 4 cores).
 
 ### Validation
 
@@ -81,7 +102,7 @@ Everything runs on CPU with the LAMMPS Python wheel — no GPU, no external data
 
 ```bash
 pip install lammps matplotlib imageio imageio-ffmpeg   # needs libmpich12
-./run_all.sh          # production, ~80 min on 4 cores
+./run_all.sh          # production, ~40 min on 4 cores
 ./run_all.sh quick    # coarse preview, ~6 min
 ```
 

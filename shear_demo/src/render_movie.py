@@ -104,7 +104,7 @@ def main():
     ap.add_argument("--movie", default="out/shear_dislocation_demo.mp4")
     ap.add_argument("--slab", type=float, default=8.0)
     ap.add_argument("--stride", type=int, default=2)
-    ap.add_argument("--fps", type=int, default=24)
+    ap.add_argument("--fps", type=int, default=15)
     ap.add_argument("--dpi", type=int, default=100)
     ap.add_argument("--temp", type=float, default=300.0)
     ap.add_argument("--rate", type=float, default=1.0e9)

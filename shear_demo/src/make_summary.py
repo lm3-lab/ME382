@@ -47,12 +47,20 @@ def main():
 
     ax.axhline(tau_ideal, color=SERIES["perfect"], lw=1.1, ls=(0, (5, 4)), alpha=0.7)
     ax.annotate(f"ideal shear strength  τₘₐₓ = {tau_ideal:.2f} GPa",
-                xy=(gam_ideal, tau_ideal), xytext=(gam_ideal * 0.45, tau_ideal * 1.03),
-                color=TEXT_2, fontsize=11)
-    for c in ("edge", "screw"):
-        ax.annotate(f"{stats[c]:.2f} GPa", xy=(g0.max() * 0.90, stats[c]),
+                xy=(g0.max() * 0.995, tau_ideal * 1.015), color=TEXT_2,
+                fontsize=11.5, ha="right", va="bottom")
+    # both flow stresses sit almost on the axis, so label them with leaders
+    # reaching into the empty space under the elastic branch
+    for c, ty in (("screw", 0.32), ("edge", 0.18)):
+        ax.annotate(f"{c}: {stats[c]:.2f} GPa  ({tau_ideal/stats[c]:.0f}× lower)",
+                    xy=(g0.max() * 0.66, stats[c]),
+                    xytext=(g0.max() * 0.34, tau_ideal * ty),
                     color=SERIES[c], fontsize=11.5, fontweight="bold",
-                    va="bottom")
+                    va="center", ha="left",
+                    arrowprops=dict(arrowstyle="-", color=SERIES[c], lw=1.0,
+                                    alpha=0.55,
+                                    connectionstyle="angle,angleA=0,angleB=90,rad=6"))
+
 
     ax.set_xlabel("shear strain  γ", color=TEXT_2, fontsize=12.5)
     ax.set_ylabel("resolved shear stress  τ  (GPa)", color=TEXT_2, fontsize=12.5)
@@ -65,8 +73,8 @@ def main():
         ax.spines[s].set_color(GRID)
     ax.set_xlim(0, g0.max())
     ax.set_ylim(0, tau_ideal * 1.15)
-    leg = ax.legend(loc="upper right", frameon=False, fontsize=11.5,
-                    labelcolor=TEXT_2)
+    ax.legend(loc="upper left", bbox_to_anchor=(0.015, 0.88), frameon=False,
+              fontsize=11.5, labelcolor=TEXT_2)
     ax.set_title("BCC iron sheared on {110}⟨111⟩ — "
                  f"{args.temp:.0f} K, {args.rate:.0e} s⁻¹",
                  color=TEXT_1, fontsize=15, fontweight="bold", pad=14, loc="left")
