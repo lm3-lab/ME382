@@ -4,6 +4,16 @@ The companion to [`../shear_demo`](../shear_demo). That demo showed *why* a
 crystal with a dislocation is weak. This one shows how you make it strong again:
 put something in the dislocation's way.
 
+> **These are artificial, qualitative demonstrations.** They are built to make a mechanism
+> visible, not to predict a material. The crystals are a few nanometres across; the shear is
+> applied at about 10⁹ s⁻¹, some twelve orders of magnitude faster than a laboratory test;
+> and one dislocation in a cell this size is a density far beyond any real microstructure.
+> What happens on screen is real physics — the stresses below are **not** material
+> properties of iron and should not be quoted as such. Treat every number as illustrative of
+> a trend, not as a measurement.
+> The particle is denser and harder than anything metallurgical too: a 2.5 nm spacing and a
+> sphere of atoms held perfectly rigid, rather than a genuine second phase.
+
 Two runs, side by side:
 
 | | specimen | result |

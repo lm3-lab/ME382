@@ -281,7 +281,8 @@ def main():
     import imageio_ffmpeg
     writer = imageio_ffmpeg.write_frames(
         args.movie, (int(16 * args.dpi), int(9 * args.dpi)), fps=args.fps,
-        quality=8, macro_block_size=1)
+        quality=8, macro_block_size=1,
+        output_params=["-movflags", "+faststart"])
     writer.send(None)
 
     peak_found = {"done": False, "tau": 0.0, "gam": 0.0}

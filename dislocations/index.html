@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dislocations and strength &mdash; ME 382</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f7f8fa;
+  --panel:#ffffff;
+  --ink:#171b20;
+  --body:#333b44;
+  --muted:#6d7883;
+  --rule:#d9dee4;
+  --liq:#d97a2b;
+  --sol:#3d7ea6;
+  --wash:#efbe86;
+  --note:#fdf6ec;
+  --noteRule:#e6c79a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0f1215;
+    --panel:#171b20;
+    --ink:#eef1f4;
+    --body:#c3ccd5;
+    --muted:#8c97a3;
+    --rule:#2b333b;
+    --liq:#e8933f;
+    --sol:#6aa8cb;
+    --wash:#6b4a25;
+    --note:#241c11;
+    --noteRule:#5d4622;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0f1215;
+  --panel:#171b20;
+  --ink:#eef1f4;
+  --body:#c3ccd5;
+  --muted:#8c97a3;
+  --rule:#2b333b;
+  --liq:#e8933f;
+  --sol:#6aa8cb;
+  --wash:#6b4a25;
+  --note:#241c11;
+  --noteRule:#5d4622;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--body);
+  font:16px/1.65 Spectral, Georgia, serif;
+  padding-inline:20px;
+}
+.wrap{max-width:720px;margin:0 auto;padding-block:56px 72px}
+.eyebrow{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px
+}
+.eyebrow a{color:inherit;text-decoration:none;border-bottom:1px solid var(--rule)}
+.eyebrow a:hover{color:var(--sol)}
+h1{
+  font:600 clamp(30px,5vw,44px)/1.1 Spectral, Georgia, serif;
+  color:var(--ink);margin:0 0 12px;letter-spacing:-.01em
+}
+.lede{margin:0 0 30px;max-width:60ch}
+h2{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin:44px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--rule)
+}
+h3{font:600 20px/1.3 Spectral, Georgia, serif;color:var(--ink);margin:0 0 8px}
+p{margin:0 0 16px;max-width:66ch}
+.note{
+  background:var(--note);border:1px solid var(--noteRule);border-left-width:4px;
+  border-radius:8px;padding:18px 20px;margin:0 0 34px
+}
+.note strong{color:var(--ink)}
+.note p{margin:0;font-size:15px;max-width:none}
+.note p + p{margin-top:10px}
+figure{
+  margin:0 0 12px;position:relative;left:50%;transform:translateX(-50%);
+  width:min(980px, calc(100vw - 40px))
+}
+.screen{
+  background:#ffffff;border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;line-height:0
+}
+video,.screen img{width:100%;height:auto;display:block}
+figcaption{
+  font:400 13.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;
+  color:var(--muted);margin-top:10px;max-width:74ch;
+  margin-inline:auto;padding-inline:2px
+}
+table{
+  border-collapse:collapse;width:100%;margin:0 0 18px;
+  font:400 14.5px/1.5 "IBM Plex Sans", system-ui, sans-serif
+}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{color:var(--muted);font-weight:500;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+strong.hit{color:var(--ink)}
+@media (max-width:560px){
+  td.num{white-space:normal}
+  th,td{padding:8px 8px}
+  table{font-size:13.5px}
+}
+.foot{
+  margin-top:48px;padding-top:18px;border-top:1px solid var(--rule);
+  font:400 12.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.foot a,p a{color:var(--sol)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow"><a href="../">ME 382</a> &nbsp;/&nbsp; Molecular dynamics</p>
+  <h1>Dislocations and the strength of a crystal</h1>
+  <p class="lede">Two molecular-dynamics demonstrations in BCC iron. The first shows why a
+  crystal containing a dislocation is so much weaker than its bonds suggest. The second
+  shows how you take that strength back by putting an obstacle in the dislocation's way.</p>
+
+  <div class="note">
+    <p><strong>These are artificial, qualitative demonstrations.</strong> They are built to
+    make a mechanism visible, not to predict a material.</p>
+    <p>The crystals are a few nanometres across; the shear is applied at about
+    10<sup>9</sup>&nbsp;s<sup>&minus;1</sup>, some twelve orders of magnitude faster than a
+    laboratory test; one dislocation in a cell this size is a density far beyond any real
+    microstructure, and so is a particle spacing of 2.5&nbsp;nm; and the &ldquo;precipitate&rdquo;
+    is a sphere of atoms held rigid rather than a genuine second phase.</p>
+    <p>What happens on screen &mdash; the glide, the pinning, the bowing, the loop left
+    behind &mdash; is real physics. The stresses are <em>not</em> material properties of iron
+    and should not be quoted as such. Treat every number below as illustrative of a trend,
+    not as a measurement.</p>
+  </div>
+
+  <h2>One &mdash; what a single dislocation does</h2>
+  <p>Three identical blocks of BCC iron, sheared identically on the
+  {110}&#10216;111&#10217; slip system. They differ only in what they contain: nothing, one
+  edge dislocation, or one screw dislocation. Because both [111] and [11&#772;2] are axes of
+  the same cell, all three fit the same box at the same orientation with atom counts within
+  2&nbsp;%, so the dislocation character is the only variable.</p>
+
+  <figure>
+    <div class="screen">
+      <video controls preload="metadata" playsinline loop poster="poster-shear.jpg">
+        <source src="../shear_demo/out/shear_dislocation_demo.mp4" type="video/mp4">
+        Your browser cannot play this video.
+        <a href="../shear_demo/out/shear_dislocation_demo.mp4">Download it instead.</a>
+      </video>
+    </div>
+    <figcaption>Dashed outline: the undeformed cell. Solid outline: the same cell as the
+    grips have sheared it. The bulk lattice is hidden &mdash; only atoms that are not in a
+    perfect BCC environment are drawn, so what you see is the dislocation itself.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Quantity</th><th>Value in this model</th></tr></thead>
+    <tbody>
+      <tr><td>Shear modulus of the slip system</td><td class="num">68.7 GPa</td></tr>
+      <tr><td><strong class="hit">Ideal shear strength</strong> (perfect lattice)</td><td class="num"><strong class="hit">9.45 GPa</strong> at &gamma;&nbsp;=&nbsp;0.157</td></tr>
+      <tr><td>Flow stress, one screw dislocation</td><td class="num">0.43 GPa &mdash; 22&times; lower</td></tr>
+      <tr><td>Flow stress, one edge dislocation</td><td class="num">0.09 GPa &mdash; 103&times; lower</td></tr>
+    </tbody>
+  </table>
+  <p>The perfect lattice has to shear every bond on the slip plane at once, and holds out
+  until it nucleates slip catastrophically. The two crystals that already contain a
+  dislocation never approach that: the dislocation only has to break bonds along its core, a
+  row at a time. That the screw is several times harder than the edge is specific to BCC,
+  and is why the yield strength of these metals depends so strongly on temperature.</p>
+
+  <figure>
+    <div class="screen"><img src="../shear_demo/out/stress_strain.png"
+         alt="Resolved shear stress against shear strain for the three specimens. The perfect
+              crystal rises to 9.45 GPa and collapses; the two containing a dislocation stay
+              near the axis."></div>
+  </figure>
+
+  <h2>Two &mdash; putting a precipitate in the way</h2>
+  <p>The same edge-dislocation cell, with one hard 2.4&nbsp;nm particle sitting on the glide
+  plane. The particle is a sphere of atoms that relaxes with the crystal and is then simply
+  never allowed to move, so it models a hard, non-shearable second phase. The dislocation
+  cannot cut it and must bow between it and its periodic images.</p>
+
+  <figure>
+    <div class="screen">
+      <video controls preload="metadata" playsinline loop poster="poster-precip.jpg">
+        <source src="../precip_demo/out/precipitate_demo.mp4" type="video/mp4">
+        Your browser cannot play this video.
+        <a href="../precip_demo/out/precipitate_demo.mp4">Download it instead.</a>
+      </video>
+    </div>
+    <figcaption>Left: a clear path. Right: the same dislocation meeting the particle (grey).
+    Both start from the identical relaxed crystal &mdash; same energy, same defect count.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Quantity</th><th>Value in this model</th></tr></thead>
+    <tbody>
+      <tr><td>Flow stress, clear path</td><td class="num">0.10 GPa</td></tr>
+      <tr><td><strong class="hit">Break-away stress against the particle</strong></td><td class="num"><strong class="hit">1.58 GPa</strong> &mdash; 16&times; higher</td></tr>
+      <tr><td>Escape events over the run</td><td class="num">5, evenly spaced in strain</td></tr>
+      <tr><td>Orowan estimate (Bacon&ndash;Kocks&ndash;Scattergood)</td><td class="num">2.49 GPa &mdash; measured/predicted 0.63</td></tr>
+    </tbody>
+  </table>
+  <p>Free glide becomes a stick&ndash;slip cycle: the line is held until the stress is enough
+  to bow it through the channel, escapes leaving a loop behind, races round the cell, and is
+  caught again. The five escapes come at equal strain intervals of 0.046, against
+  <em>b</em>/<em>h</em>&nbsp;=&nbsp;0.044 for one traverse of the cell &mdash; a useful
+  internal check that each cycle really is one pass.</p>
+
+  <figure>
+    <div class="screen"><img src="../precip_demo/out/precipitate_stress_strain.png"
+         alt="Resolved shear stress against shear strain. The clear path stays near 0.1 GPa;
+              the obstructed dislocation traces five sawteeth peaking at 1.58 GPa."></div>
+  </figure>
+
+  <h2>Reproducing it</h2>
+  <p>Everything runs on CPU with the LAMMPS Python wheel &mdash; no GPU, no external data.
+  <code>shear_demo/run_all.sh</code> produces the first demonstration and
+  <code>precip_demo/run_all.sh</code> the second, each in well under an hour on four cores.
+  Both folders carry a README with the construction of the dislocations, the validation
+  against an independently measured shear modulus, and the full list of caveats.</p>
+
+  <p class="foot">Source and notes on
+  <a href="https://github.com/lm3-lab/ME382">GitHub</a>:
+  <a href="https://github.com/lm3-lab/ME382/tree/main/shear_demo">shear_demo</a> and
+  <a href="https://github.com/lm3-lab/ME382/tree/main/precip_demo">precip_demo</a>.</p>
+
+</div>
+</body>
+</html>

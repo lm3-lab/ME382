@@ -4,6 +4,14 @@ A molecular-dynamics demonstration of why a real metal crystal yields at a stres
 one to two orders of magnitude below the strength its bonds imply — because it
 contains dislocations.
 
+> **These are artificial, qualitative demonstrations.** They are built to make a mechanism
+> visible, not to predict a material. The crystals are a few nanometres across; the shear is
+> applied at about 10⁹ s⁻¹, some twelve orders of magnitude faster than a laboratory test;
+> and one dislocation in a cell this size is a density far beyond any real microstructure.
+> What happens on screen is real physics — the stresses below are **not** material
+> properties of iron and should not be quoted as such. Treat every number as illustrative of
+> a trend, not as a measurement.
+
 Three blocks of BCC iron are sheared side by side under **identical** loading.
 They differ only in what they contain:
 
