@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lens, Eutectic, Peritectic</title>
+<title>Introduction to binary alloy phase diagrams: Lens, Eutectic, Peritectic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -325,11 +325,12 @@ summary{
 </header>
 
 <section class="intro">
-  <h2>Where the curves come from</h2>
-  <p>Two things decide what a phase costs at a given composition, and they pull against each
-  other. Both are strongest at half and half.</p>
-
-  <p class="steplbl">1 &middot; Freedom of arrangement</p>
+  <h2>The (free) energy as a function of composition</h2>
+  <p>We decide to make a binary AB alloy with a composition 0 <= x <= 1.</p>
+  <p>There can be a mixture of phases: we can work out how much of each with the lever rule.</p>
+  <p>Whether this happens or not depends on the interplay of entropy (number of distinct configurations) and energy (cost per configuration)</p>
+  <p>When the energy doesn't depend on composition, entropy dominates, and vice versa. </p>
+  <p class="steplbl">1 &middot; Entropy: freedom of arrangement</p>
   <div class="introgrid two">
     <div class="ifig">
       <div class="ibox"><canvas id="lat1" role="img"
@@ -354,12 +355,9 @@ summary{
     </div>
   </div>
 
-  <p class="steplbl">2 &middot; Strength of the bonds</p>
-  <p>Now the other side. Pull two atoms apart and the energy rises; push them together and it
-  rises too. In between sits a comfortable separation, and the depth of that well says how much
-  the pair likes being neighbours. What matters is how an A&ndash;B bond compares with the
+  <p class="steplbl">2 &middot; Energy: does it cost to mix species?</p>
+  <p>We have considered the bonding curve for single element systems. For binaries, what matters is how an A&ndash;B bond compares with the
   average of an A&ndash;A and a B&ndash;B, marked here as a dashed line.</p>
-
   <div class="introgrid two">
     <div class="ifig">
       <div class="ibox"><canvas id="bond1" role="img"
