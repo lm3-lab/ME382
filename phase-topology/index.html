@@ -111,6 +111,29 @@ h1{
 }
 .standfirst{margin:0;max-width:62ch;color:var(--body)}
 
+/* ---- intro ---- */
+.intro{margin:0 0 26px}
+.intro h2{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--rule)
+}
+.intro p{margin:0 0 12px;max-width:66ch}
+.introgrid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;margin-top:20px
+}
+.ifig{
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:14px;display:grid;gap:9px
+}
+.ifig .cap{
+  margin:0;font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.ifig .cap b{color:var(--ink);font-weight:600}
+.ibox{width:100%;aspect-ratio:4/3;max-width:100%}
+.ibox canvas{width:100%;height:100%;display:block}
+
 /* ---- control bar ---- */
 .controls{
   background:var(--panel);border:1px solid var(--rule);border-radius:10px;
@@ -288,6 +311,43 @@ summary{
   <p class="standfirst">Slide one number and watch a plain freezing range turn into a eutectic.
   Both panels are worked out live from energy curves as you drag &mdash; nothing is drawn by hand.</p>
 </header>
+
+<section class="intro">
+  <h2>First, the two curves</h2>
+  <p>Each phase &mdash; liquid, and solid &mdash; has an energy curve across composition:
+  how much that phase costs at each mix of A and B. At any temperature the alloy simply
+  takes whichever is cheapest.</p>
+  <p>Mixing always helps. There are vastly more ways to arrange a half-and-half solution than
+  a nearly pure one, and that freedom &mdash; mixing entropy &mdash; pulls G down hardest in
+  the middle. On its own it puts a single minimum at x = 0.5. That is essentially what the
+  liquid does.</p>
+  <p>But atoms in a solid may prefer their own kind. Every unlike neighbour costs a little
+  energy, and <em>that</em> cost is also largest at x = 0.5. When it outgrows the entropy gain,
+  the single well splits in two &mdash; one A-rich, one B-rich. That double well is what you
+  are about to create with the slider.</p>
+
+  <div class="introgrid">
+    <div class="ifig">
+      <div class="ibox"><canvas id="lat1" role="img"
+        aria-label="A lattice of A atoms containing a single B atom"></canvas></div>
+      <p class="cap"><b>x = 0.01.</b> One B atom among A. Move it anywhere and the picture
+      barely changes &mdash; few distinct arrangements.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="lat2" role="img"
+        aria-label="A lattice with A and B atoms mixed in equal numbers at random"></canvas></div>
+      <p class="cap"><b>x = 0.50.</b> Half and half. Astronomically many distinct arrangements,
+      so the entropy gain is largest here.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="mix" role="img"
+        aria-label="Entropy lowers the energy in the middle, ordering energy raises it, and their sum has two minima"></canvas></div>
+      <p class="cap"><b>The competition.</b> Mixing alone gives one minimum, in the middle.
+      Add the cost of unlike neighbours &mdash; largest in the middle too &mdash; and it
+      splits into two.</p>
+    </div>
+  </div>
+</section>
 
 <section class="controls" aria-label="Model controls">
   <div class="branchrow">
@@ -615,6 +675,96 @@ function fit(cv) {
 const SANS = '"IBM Plex Sans", system-ui, sans-serif';
 const MONO = '"IBM Plex Mono", ui-monospace, monospace';
 
+/* ---- intro figures ---- */
+function rng(seed) { return function () {
+  seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+  let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}; }
+
+/* A fixed seed keeps the arrangement identical across redraws, so switching
+   theme or resizing does not reshuffle the atoms under the reader. */
+function drawLattice(id, frac, seed) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const cols = 12, rows = 9, n = cols * rows;
+  const pad = 6, cw = (w - 2 * pad) / cols, ch = (h - 2 * pad) / rows;
+  const r = Math.min(cw, ch) * 0.34;
+
+  const isB = new Array(n).fill(false);
+  const want = Math.max(1, Math.round(frac * n));
+  const rand = rng(seed);
+  let placed = 0, guard = 0;
+  while (placed < want && guard++ < 5000) {
+    const k = Math.floor(rand() * n);
+    if (!isB[k]) { isB[k] = true; placed++; }
+  }
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const k = j * cols + i;
+      ctx.beginPath();
+      ctx.arc(pad + (i + 0.5) * cw, pad + (j + 0.5) * ch, r, 0, 6.2832);
+      ctx.fillStyle = isB[k] ? P.liq : P.sol;
+      ctx.globalAlpha = isB[k] ? 1 : 0.42;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+/* Shape comparison only. Plotting the two contributions against their sum does
+   not work: the sum's well is an order of magnitude shallower than either part,
+   so it renders flat. Each curve is normalised to its own depth instead, which
+   is what the reader needs to see - one minimum against two. */
+function drawMix() {
+  const cv = document.getElementById("mix"); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 12, r: 12, t: 20, b: 28 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const M = 200, OM = 2.6;
+  const ent = [], both = [];
+  for (let i = 0; i <= M; i++) {
+    const x = i / M;
+    const sx = (i === 0 || i === M) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+    ent.push(sx); both.push(OM * x * (1 - x) + sx);
+  }
+  const norm = a => {
+    let lo = Infinity, hi = -Infinity;
+    for (const v of a) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const d = (hi - lo) || 1;
+    return a.map(v => (v - lo) / d);
+  };
+  const nEnt = norm(ent), nBoth = norm(both);
+  const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (1 - v) * ph * 0.88 + ph * 0.06;
+
+  const plot = (arr, col, lw, dash) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    for (let i = 0; i <= M; i++) { const x = X2(i), y = Y2(arr[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  plot(nEnt, P.sol, 2.2, [6, 4]);
+  plot(nBoth, P.hull, 3);
+
+  ctx.font = "10.5px " + SANS; ctx.textAlign = "center";
+  ctx.fillStyle = P.sol;
+  ctx.fillText("mixing only: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
+  ctx.fillStyle = P.ink;
+  ctx.fillText("+ unlike-neighbour cost", m.l + pw * 0.5, Y2(nBoth[M / 2]) - 9);
+  ctx.fillStyle = P.muted;
+  ctx.fillText("x = 0", m.l + 16, h - 9);
+  ctx.fillText("x = 1", m.l + pw - 16, h - 9);
+  ctx.textAlign = "right";
+  ctx.fillText("shape only", m.l + pw, m.t - 8);
+}
+
+function drawIntro() { drawLattice("lat1", 0.01, 7); drawLattice("lat2", 0.5, 20240919); drawMix(); }
+
 /* ---- G-x panel ---- */
 const gxCanvas = document.getElementById("gx");
 function drawGx(T, p) {
@@ -793,6 +943,7 @@ function render() {
 
   const Ttop = Math.round(THI), Tbot = Math.round(p.TLO);
   el("temp").min = Tbot; el("temp").max = Ttop;
+  drawIntro();
   drawGx(Tcur, p);
   drawPd(p, inv, Tcur, Ttop, Tbot);
 }
