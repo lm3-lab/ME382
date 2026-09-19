@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Introduction to binary alloy phase diagrams: Lens, Eutectic, Peritectic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ---- light palette: every token declared here first ---- */
+:root{
+  color-scheme: light;
+  --ground:#f7f8fa;
+  --panel:#ffffff;
+  --sunk:#eef1f4;
+  --ink:#171b20;
+  --body:#333b44;
+  --muted:#6d7883;
+  --rule:#d9dee4;
+  --rule-soft:#e8ecf0;
+
+  --liq:#d97a2b;
+  --sol:#3d7ea6;
+  --inv:#b0344f;
+
+  --c-liq:#efbe86;
+  --c-sol:#93bdd6;
+  --c-ls:#ffffff;
+  --c-ss:#c6c0db;
+
+  --hull:#171b20;
+  --grid:#dfe4ea;
+  --focus:#3d7ea6;
+  --bond:#7d6ba6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0f1215;
+    --panel:#171b20;
+    --sunk:#1e242a;
+    --ink:#eef1f4;
+    --body:#c3ccd5;
+    --muted:#8c97a3;
+    --rule:#2b333b;
+    --rule-soft:#222930;
+
+    --liq:#e8933f;
+    --sol:#6aa8cb;
+    --inv:#e0647f;
+
+    --c-liq:#6b4a25;
+    --c-sol:#2d4a5d;
+    --c-ls:#dbe4ea;
+    --c-ss:#474168;
+
+    --hull:#eef1f4;
+    --grid:#262d35;
+    --focus:#6aa8cb;
+    --bond:#a493d4;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0f1215;
+  --panel:#171b20;
+  --sunk:#1e242a;
+  --ink:#eef1f4;
+  --body:#c3ccd5;
+  --muted:#8c97a3;
+  --rule:#2b333b;
+  --rule-soft:#222930;
+
+  --liq:#e8933f;
+  --sol:#6aa8cb;
+  --inv:#e0647f;
+
+  --c-liq:#6b4a25;
+  --c-sol:#2d4a5d;
+  --c-ls:#dbe4ea;
+  --c-ss:#474168;
+
+  --hull:#eef1f4;
+  --grid:#262d35;
+  --focus:#6aa8cb;
+  --bond:#a493d4;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--body);
+  font:16px/1.6 Spectral, Georgia, serif;
+  padding-inline:20px;
+  padding-block:0;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+.wrap{max-width:1140px;margin:0 auto;padding-block:36px 64px}
+
+/* ---- masthead ---- */
+.mast{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:24px}
+.eyebrow{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px
+}
+h1{
+  font:600 clamp(28px,4.4vw,42px)/1.12 Spectral, Georgia, serif;
+  color:var(--ink);margin:0 0 10px;text-wrap:balance;letter-spacing:-.01em
+}
+.standfirst{margin:0;max-width:62ch;color:var(--body)}
+
+/* ---- intro ---- */
+.intro{margin:0 0 26px}
+.intro h2{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--rule)
+}
+.intro p{margin:0 0 12px;max-width:66ch}
+.introgrid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;margin:18px 0
+}
+.introgrid.two{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.introgrid.one{grid-template-columns:minmax(0,1fr);max-width:420px}
+.ifig{
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:14px;display:grid;gap:9px;align-content:start
+}
+.ifig .cap{
+  margin:0;font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.ifig .cap b{color:var(--ink);font-weight:600}
+.ibox{width:100%;aspect-ratio:3/2;max-width:100%}
+.gbox{width:100%;aspect-ratio:5/2;max-width:100%}
+.gbox canvas{width:100%;height:100%;display:block}
+.steplbl{
+  font:500 10.5px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:26px 0 0
+}
+.ibox canvas{width:100%;height:100%;display:block}
+
+/* ---- control bar ---- */
+.controls{
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:18px 20px;display:grid;gap:18px;margin-bottom:18px
+}
+.branchrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.branchrow > .lbl{flex:0 0 auto}
+.lbl{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted)
+}
+button{font-family:"IBM Plex Sans", system-ui, sans-serif}
+.branch{
+  appearance:none;border:1px solid var(--rule);background:var(--sunk);
+  color:var(--body);border-radius:7px;padding:9px 14px;cursor:pointer;
+  font-size:13px;font-weight:500;line-height:1.2;text-align:left
+}
+.branch:hover{border-color:var(--sol)}
+.branch[aria-pressed="true"]{
+  background:var(--sol);border-color:var(--sol);color:#fff
+}
+.branch[aria-pressed="true"] .hint{color:inherit;opacity:.82}
+:root[data-theme="dark"] .branch[aria-pressed="true"],
+:root:not([data-theme="light"]) .branch[aria-pressed="true"]{color:#0f1215}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .branch[aria-pressed="true"]{color:#fff}
+}
+button:focus-visible, input:focus-visible, summary:focus-visible{
+  outline:2px solid var(--focus);outline-offset:2px
+}
+
+.knobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.knob{display:grid;gap:7px}
+.knob .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.knob .val{
+  font:500 15px/1 "IBM Plex Mono", ui-monospace, monospace;
+  color:var(--ink);font-variant-numeric:tabular-nums
+}
+input[type=range]{width:100%;accent-color:var(--sol);margin:0}
+.hint{font:400 12px/1.45 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)}
+
+/* ---- readout ---- */
+.readout{
+  background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--inv);
+  border-radius:10px;padding:16px 20px;margin-bottom:18px;
+  display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center
+}
+.verdict{display:flex;align-items:center;gap:11px}
+.pill{
+  display:inline-block;padding:5px 11px;border-radius:999px;
+  font:600 11px/1.25 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid currentColor
+}
+.pill[data-k="lens"]{color:var(--sol)}
+.pill[data-k="eutectic"]{color:var(--liq)}
+.pill[data-k="peritectic"]{color:var(--inv)}
+.pill[data-k="crossover"]{color:var(--muted)}
+.reaction{
+  font:400 14px/1.4 "IBM Plex Mono", ui-monospace, monospace;color:var(--ink)
+}
+.figs{display:flex;flex-wrap:wrap;gap:12px 22px;margin-left:auto}
+.fig{display:grid;gap:2px}
+.fig .k{
+  font:500 10px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted)
+}
+.fig .v{
+  font:500 15px/1.2 "IBM Plex Mono", ui-monospace, monospace;
+  color:var(--ink);font-variant-numeric:tabular-nums
+}
+
+/* ---- panels ---- */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+@media (max-width:820px){.panels{grid-template-columns:1fr}}
+.panel{
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:16px 16px 12px;display:grid;gap:10px
+}
+.panel h2{
+  font:600 15px/1.3 Spectral, Georgia, serif;color:var(--ink);margin:0
+}
+.panel .sub{margin:0;font:400 12.5px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)}
+.cwrap{position:relative;width:100%;aspect-ratio:4/3;max-width:100%}
+canvas{width:100%;height:100%;display:block;border-radius:5px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding-top:2px}
+.lg{
+  display:flex;align-items:center;gap:6px;
+  font:400 11.5px/1 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.sw{width:13px;height:13px;border-radius:3px;border:1px solid var(--rule);flex:0 0 auto}
+.sw.line{height:0;border:0;border-top:3px solid;border-radius:0;width:16px}
+.sw.dash{border-top-style:dashed}
+
+/* ---- prose ---- */
+.prose{max-width:66ch}
+.prose h2{
+  font:600 22px/1.25 Spectral, Georgia, serif;color:var(--ink);
+  margin:38px 0 12px;text-wrap:balance
+}
+.prose h3{
+  font:600 16px/1.3 Spectral, Georgia, serif;color:var(--ink);margin:26px 0 8px
+}
+.prose p{margin:0 0 14px}
+.prose em{font-style:italic}
+code, .mono{font:400 13.5px/1.5 "IBM Plex Mono", ui-monospace, monospace}
+code{background:var(--sunk);padding:1px 5px;border-radius:4px;color:var(--ink)}
+.eq{
+  background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--sol);
+  border-radius:8px;padding:14px 18px;margin:0 0 16px;overflow-x:auto;
+  font:400 13.5px/1.9 "IBM Plex Mono", ui-monospace, monospace;color:var(--ink);
+  white-space:pre
+}
+.callout{
+  background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--inv);
+  border-radius:8px;padding:16px 20px;margin:0 0 16px
+}
+.callout p:last-child{margin-bottom:0}
+.callout .tag{
+  display:block;font:600 10.5px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--inv);margin-bottom:8px
+}
+
+.tablewrap{overflow-x:auto;margin:0 0 8px;border:1px solid var(--rule);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font:400 13px/1.5 "IBM Plex Mono", ui-monospace, monospace}
+th,td{padding:7px 12px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{
+  font:500 10.5px/1.3 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--rule);background:var(--sunk)
+}
+tbody tr + tr td{border-top:1px solid var(--rule-soft)}
+td.k-PERI{color:var(--inv);font-weight:500}
+td.k-eu{color:var(--liq);font-weight:500}
+td.k-lens{color:var(--muted)}
+td.k-xing{color:var(--sol);font-weight:500}
+tr.mark td{background:var(--sunk)}
+caption{
+  caption-side:bottom;text-align:left;padding:9px 12px;
+  font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.tbtn{
+  appearance:none;border:1px solid var(--rule);background:var(--panel);color:var(--body);
+  border-radius:7px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:500
+}
+.tbtn:hover{border-color:var(--sol);color:var(--ink)}
+.scanrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 20px}
+.scanrow .hint{margin:0}
+
+details{
+  background:var(--panel);border:1px solid var(--rule);border-radius:8px;
+  padding:0 16px;margin:0 0 16px
+}
+details[open]{padding-bottom:14px}
+summary{
+  cursor:pointer;padding:13px 0;color:var(--ink);
+  font:500 13px/1.3 "IBM Plex Sans", system-ui, sans-serif
+}
+.adv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;padding-top:6px}
+.foot{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);
+  font:400 12.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted);
+  max-width:66ch
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">ME 382 · Binary phase equilibria</p>
+  <h1>Lens, Eutectic, Peritectic</h1>
+  <p class="standfirst">Slide one number and watch a plain freezing range turn into a eutectic.
+  Both panels are worked out live from energy curves as you drag &mdash; nothing is drawn by hand.</p>
+</header>
+
+<section class="intro">
+  <h2>The (free) energy as a function of composition</h2>
+  <p>We decide to make a binary AB alloy with a composition 0 &lt;= x &lt;= 1.</p>
+  <p>There can be a mixture of phases: we can work out how much of each with the lever rule.</p>
+  <p>Whether this happens or not depends on the interplay of entropy (number of distinct configurations) and energy (cost per configuration)</p>
+  <p>When the energy doesn't depend on composition, entropy dominates, and vice versa. </p>
+  <p class="steplbl">1 &middot; Entropy: freedom of arrangement</p>
+  <div class="introgrid two">
+    <div class="ifig">
+      <div class="ibox"><canvas id="lat1" role="img"
+        aria-label="A lattice of A atoms containing a single B atom"></canvas></div>
+      <p class="cap"><b>x = 0.01.</b> One B atom among A. Move it anywhere and the picture
+      barely changes &mdash; few distinct arrangements.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="lat2" role="img"
+        aria-label="A lattice with A and B atoms mixed in equal numbers at random"></canvas></div>
+      <p class="cap"><b>x = 0.50.</b> Half and half. Astronomically many distinct
+      arrangements.</p>
+    </div>
+  </div>
+  <div class="introgrid one">
+    <div class="ifig">
+      <div class="gbox"><canvas id="gEnt" role="img"
+        aria-label="The arrangement contribution to the energy curve: a single well with its minimum in the middle"></canvas></div>
+      <p class="cap"><b>What it does to the curve.</b> Having more ways to arrange the atoms
+      always lowers the cost, and lowers it most in the middle. On its own this puts a single
+      minimum at half and half.</p>
+    </div>
+  </div>
+
+  <p class="steplbl">2 &middot; Energy: does it cost to mix species?</p>
+  <p>We have considered the bonding curve for single element systems. For binaries, what matters is how an A&ndash;B bond compares with the
+  average of an A&ndash;A and a B&ndash;B, marked here as a dashed line.</p>
+  <div class="introgrid two">
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond1" role="img"
+        aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
+      <div class="gbox"><canvas id="gMix" role="img"
+        aria-label="The bonding contribution to the energy curve in this case is flat"></canvas></div>
+      <p class="cap"><b>Mixing.</b> The A&ndash;B well sits on the average, so swapping who
+      sits next to whom costs nothing. The bonding contribution to the curve is flat.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond2" role="img"
+        aria-label="Bond energy curves where the A-B well is shallower than the average"></canvas></div>
+      <div class="gbox"><canvas id="gOrd" role="img"
+        aria-label="The bonding contribution to the energy curve in this case is a hump peaking in the middle"></canvas></div>
+      <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower than the average, so every
+      unlike neighbour costs a little. A half-and-half mixture has the most of them, so the
+      contribution humps up in the middle.</p>
+    </div>
+  </div>
+
+  <p class="steplbl">3 &middot; Put them together</p>
+  <div class="introgrid one">
+    <div class="ifig">
+      <div class="ibox"><canvas id="mix" role="img"
+        aria-label="Arrangement freedom alone gives one minimum; adding the bonding cost gives two"></canvas></div>
+      <p class="cap"><b>The result.</b> With no bonding penalty, one minimum in the middle
+      &mdash; roughly what the liquid does. Add the hump and it splits into two, one A-rich and
+      one B-rich. That double well is what you are about to make with the slider.</p>
+    </div>
+  </div>
+</section>
+
+<section class="controls" aria-label="Model controls">
+  <div class="branchrow">
+    <span class="lbl">Branch</span>
+    <button class="branch" id="b1" aria-pressed="true">1 &nbsp;Lens &rarr; eutectic<br><span class="hint">T<sub>m</sub> 700 / 900 K &middot; &Delta;H<sub>m</sub> 12 / 12</span></button>
+    <button class="branch" id="b2" aria-pressed="false">2 &nbsp;Lens &rarr; peritectic &rarr; eutectic<br><span class="hint">T<sub>m</sub> 700 / 1400 K &middot; &Delta;H<sub>m</sub> 12 / 40</span></button>
+  </div>
+
+  <div class="knobs">
+    <div class="knob">
+      <div class="head">
+        <label class="lbl" for="oms">&Omega;<sub>s</sub> &mdash; solid interaction</label>
+        <span class="val" id="omsv">14.0 kJ/mol</span>
+      </div>
+      <input type="range" id="oms" min="0" max="36" step="0.5" value="14">
+      <p class="hint">The only knob. &Omega;<sub>l</sub> is held at 0, so the liquid stays ideal throughout.</p>
+    </div>
+    <div class="knob">
+      <div class="head">
+        <label class="lbl" for="temp">Temperature</label>
+        <span class="val" id="tempv">600 K</span>
+      </div>
+      <input type="range" id="temp" min="300" max="1000" step="1" value="600">
+      <p class="hint">Scrubs the G&ndash;x panel. <button class="tbtn" id="snap" style="padding:2px 8px;font-size:11.5px">Snap just above the invariant</button></p>
+    </div>
+  </div>
+
+  <details>
+    <summary>Melting parameters &mdash; open these to test the negative result yourself</summary>
+    <div class="adv">
+      <div class="knob">
+        <div class="head"><label class="lbl" for="tma">T<sub>m</sub> A</label><span class="val" id="tmav">700 K</span></div>
+        <input type="range" id="tma" min="400" max="1600" step="10" value="700">
+      </div>
+      <div class="knob">
+        <div class="head"><label class="lbl" for="tmb">T<sub>m</sub> B</label><span class="val" id="tmbv">900 K</span></div>
+        <input type="range" id="tmb" min="400" max="2600" step="10" value="900">
+      </div>
+      <div class="knob">
+        <div class="head"><label class="lbl" for="dha">&Delta;H<sub>m</sub> A</label><span class="val" id="dhav">12 kJ/mol</span></div>
+        <input type="range" id="dha" min="4" max="60" step="1" value="12">
+      </div>
+      <div class="knob">
+        <div class="head"><label class="lbl" for="dhb">&Delta;H<sub>m</sub> B</label><span class="val" id="dhbv">12 kJ/mol</span></div>
+        <input type="range" id="dhb" min="4" max="60" step="1" value="12">
+      </div>
+    </div>
+    <p class="hint" style="margin:12px 0 0">Melting entropies follow: <span class="mono" id="dsm"></span></p>
+  </details>
+</section>
+
+<section class="readout" aria-live="polite" aria-label="Classification">
+  <div class="verdict">
+    <span class="pill" id="pill" data-k="eutectic">Eutectic</span>
+    <span class="reaction" id="reaction">L &rarr; &alpha; + &beta;</span>
+  </div>
+  <div class="figs">
+    <div class="fig"><span class="k">T<sub>inv</sub></span><span class="v" id="fT">&mdash;</span></div>
+    <div class="fig"><span class="k">x<sub>&alpha;</sub></span><span class="v" id="fA">&mdash;</span></div>
+    <div class="fig"><span class="k">x<sub>L</sub></span><span class="v" id="fL">&mdash;</span></div>
+    <div class="fig"><span class="k">x<sub>&beta;</sub></span><span class="v" id="fB">&mdash;</span></div>
+  </div>
+</section>
+
+<section class="panels">
+  <div class="panel">
+    <h2>What each phase costs</h2>
+    <p class="sub">The convex hull of the two curves. Where it runs straight, the alloy splits into the two phases at its ends.</p>
+    <div class="cwrap"><canvas id="gx" role="img" aria-label="Energy of the liquid and solid against composition, with the convex hull drawn underneath"></canvas></div>
+    <div class="legend">
+      <span class="lg"><span class="sw line" style="border-color:var(--liq)"></span>liquid</span>
+      <span class="lg"><span class="sw line" style="border-color:var(--sol)"></span>solid</span>
+      <span class="lg"><span class="sw line dash" style="border-color:var(--hull)"></span>convex hull</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>The phase diagram this produces</h2>
+    <p class="sub">One row per temperature, coloured by which phases are present. Nothing here is drawn by hand.</p>
+    <div class="cwrap"><canvas id="pd" role="img" aria-label="Temperature versus composition phase diagram computed from the hull"></canvas></div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--c-liq)"></span>liquid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-sol)"></span>solid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-ls)"></span>liquid + solid</span>
+      <span class="lg"><span class="sw" style="background:var(--c-ss)"></span>two solids</span>
+    </div>
+  </div>
+</section>
+
+<div class="prose">
+
+<h2>What you are looking at</h2>
+<p>The left panel shows how much energy the liquid and the solid cost at each composition,
+at one temperature. The alloy always takes the cheapest option available to it &mdash; and a
+<em>mixture</em> of two phases is an option, costing whatever lies on the straight line joining
+them.</p>
+<p>So imagine running a string underneath both curves and pulling it taut. That line is the
+<em>convex hull</em>, drawn dashed in the panel. Where it hugs a curve, you get that single
+phase. Where it leaves the curves and runs straight, the alloy separates into the two phases
+sitting at the ends of that straight stretch. The right panel is nothing more than this answer
+worked out at every temperature and stacked up.</p>
+
+<h2>Why a eutectic forms</h2>
+<p>&Omega;<sub>s</sub> says how much A and B atoms dislike being neighbours in the solid. Leave
+it at zero and they mix happily: one solid, one liquid, and freezing happens between two smooth
+curves &mdash; a lens. Slide it up and watch the solid curve grow a hump in the middle, because
+a half-and-half solid now costs extra.</p>
+<p>The liquid has no such hump. So across a band of middle compositions the liquid stays the
+cheapest option even below the melting points of <em>both</em> pure metals: the alloy is still
+molten where either pure metal would already have frozen. Cool further and it finally freezes
+&mdash; into two solids at once, one A-rich and one B-rich, because no single solid is cheap
+enough. The lowest temperature at which any liquid survives is the eutectic.</p>
+<p>That is the whole idea. <em>A solid that resists mixing pushes the freezing point down</em>,
+and an alloy can melt lower than either metal it is made from. It is why solder melts well below
+either tin or lead.</p>
+
+<h2>A peritectic is the same picture, rearranged</h2>
+<p>At the eutectic the convex hull touches three points at once: the liquid and two solids. What
+decides the reaction is simply their left-to-right order.</p>
+
+<div class="eq">liquid BETWEEN the two solids  &rarr;  eutectic     L &rarr; &alpha; + &beta;
+liquid OUTSIDE them            &rarr;  peritectic   L + &beta; &rarr; &alpha;</div>
+
+<p>If B melts at a far higher temperature than A, the liquid gets squeezed into the A-rich corner
+while both solids sit well to its right. The liquid is no longer caught between them, so it
+cannot simply split into both. Instead it has to react with the B-rich solid to produce the
+A-rich one. Switch to branch&nbsp;2 above and look at the three dots on the dashed line: the
+orange liquid dot sits to the <em>left</em> of both blue solid dots. That is the signature.</p>
+
+<details>
+  <summary>Beyond the syllabus &mdash; the model, and a claim it corrects</summary>
+
+  <p style="margin-top:8px">The curves come from a regular-solution model, with the solid measured
+  from zero at each pure end:</p>
+
+  <div class="eq">G_l(x) = (1-x)&middot;&Delta;H_A&middot;(1 - T/Tm_A)
+       + x&middot;&Delta;H_B&middot;(1 - T/Tm_B) + RT&middot;s(x)
+
+G_s(x) = &Omega;_s&middot;x(1-x) + RT&middot;s(x)
+
+s(x)   = x&middot;ln x + (1-x)&middot;ln(1-x)</div>
+
+  <p>Equilibrium is the lower convex hull of the two curves. An invariant is a temperature where
+  one straight segment carries three contacts at once.</p>
+
+  <h3>Melting points are not what makes a peritectic</h3>
+  <p>It is often said that a large difference in melting <em>points</em> turns a eutectic into a
+  peritectic. That is wrong. Holding the heats of fusion equal at 12 kJ/mol and pushing
+  T<sub>m</sub><sup>B</sup> from 900&nbsp;K to 2400&nbsp;K gives a eutectic in essentially every
+  case &mdash; only two isolated peritectics survive, right at the onset of the solid hump, and
+  they are gone as soon as it widens.</p>
+  <p>What matters is the melting <em>entropy</em>, &Delta;S<sub>m</sub> = &Delta;H<sub>m</sub> /
+  T<sub>m</sub>: 17.1 J/mol/K for A against 28.6 for B in branch&nbsp;2. A large value on B makes
+  that side of the liquidus steep, confining the liquid to the A-rich corner, while the solid hump
+  stays centred at x = 0.5. Open the melting parameters above and test it.</p>
+
+  <div class="tablewrap">
+  <table id="grid">
+    <caption>Equal heats of fusion, T<sub>m</sub><sup>A</sup> = 700&nbsp;K. If a large melting-point
+    gap produced peritectics, the right-hand columns would fill with them.</caption>
+    <thead><tr><th>T<sub>m</sub><sup>B</sup></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="scanrow">
+    <button class="tbtn" id="rungrid">Recompute in browser</button>
+    <p class="hint" id="gridstat">65 scans, about a second.</p>
+  </div>
+
+  <h3>Branch 2, swept</h3>
+  <div class="tablewrap">
+  <table id="sweep">
+    <caption>The peritectic becomes a eutectic exactly where x<sub>L</sub> crosses
+    x<sub>&alpha;</sub>. Near that crossing the two fall within one grid spacing, so
+    &Omega;<sub>s</sub> = 21&ndash;22 is reported as degenerate rather than typed.</caption>
+    <thead><tr><th>&Omega;<sub>s</sub> kJ/mol</th><th>Type</th><th>T / K</th><th>x<sub>&alpha;</sub></th><th>x<sub>L</sub></th><th>x<sub>&beta;</sub></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="scanrow">
+    <button class="tbtn" id="runsweep">Recompute in browser</button>
+    <p class="hint">Recomputing should leave every cell unchanged.</p>
+  </div>
+</details>
+
+<p class="foot">Regular-solution model, ideal liquid, R = 8.314 J/mol/K. Companion to the
+molecular dynamics demonstration.</p>
+
+</div>
+</div>
+
+<script>
+"use strict";
+const R = 8.314, N = 401, NM1 = N - 1;
+
+/* composition grid and the T-independent pieces, precomputed once */
+const X = new Float64Array(N), XB = new Float64Array(N), XX = new Float64Array(N), S = new Float64Array(N);
+for (let i = 0; i < N; i++) {
+  const x = i / NM1;
+  X[i] = x; XB[i] = 1 - x; XX[i] = x * (1 - x);
+  S[i] = (i === 0 || i === NM1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+}
+
+/* ---- model ---- */
+const G = new Float64Array(N);       // lower envelope value
+const TAG = new Uint8Array(N);       // 0 = liquid, 1 = solid
+function build(T, p, g, tag) {
+  const cA = p.dHA * (1 - T / p.TmA), cB = p.dHB * (1 - T / p.TmB), RT = R * T;
+  for (let i = 0; i < N; i++) {
+    const s = RT * S[i];
+    const gl = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
+    const gs = p.Oms * XX[i] + s;
+    if (gl < gs) { g[i] = gl; tag[i] = 0; } else { g[i] = gs; tag[i] = 1; }
+  }
+}
+/* A point lying above another at the same composition can never be a hull vertex,
+   so reducing to the pointwise lower envelope leaves the hull geometry untouched
+   while removing the duplicate-x degeneracy that makes monotone chain retain a
+   non-hull point at x = 1. */
+const HULL = new Int32Array(N);
+function hull(g) {
+  let n = 0;
+  for (let i = 0; i < N; i++) {
+    while (n >= 2) {
+      const a = HULL[n - 2], b = HULL[n - 1];
+      if ((X[b] - X[a]) * (g[i] - g[a]) - (g[b] - g[a]) * (X[i] - X[a]) <= 0) n--;
+      else break;
+    }
+    HULL[n++] = i;
+  }
+  return n;
+}
+/* tie-line = hull edge spanning >= 2 grid steps */
+function ties(nh, tag) {
+  const out = [];
+  for (let k = 0; k < nh - 1; k++) {
+    const i = HULL[k], j = HULL[k + 1];
+    if (j - i >= 2) out.push({ i, j, ti: tag[i], tj: tag[j] });
+  }
+  return out;
+}
+function liquidContacts(tl) {
+  const c = [];
+  for (const t of tl) {
+    if (t.ti === 0 && t.tj === 1) c.push(X[t.i]);
+    if (t.ti === 1 && t.tj === 0) c.push(X[t.j]);
+  }
+  return c.sort((a, b) => a - b);
+}
+function firstSS(tl) { for (const t of tl) if (t.ti === 1 && t.tj === 1) return t; return null; }
+
+/* Cool until the first solid-solid tie-line. Read the liquid contact one step
+   ABOVE it. No liquid contact there means the gap opened below the solidus: lens. */
+function invariant(p, THI, TLO, steps) {
+  const g = new Float64Array(N), tag = new Uint8Array(N);
+  let prevLC = null;
+  for (let k = 0; k <= steps; k++) {
+    const T = THI + (TLO - THI) * k / steps;
+    build(T, p, g, tag);
+    const nh = hull(g), tl = ties(nh, tag), ss = firstSS(tl);
+    if (ss) {
+      if (!prevLC || !prevLC.length) return null;
+      const xL = prevLC.reduce((a, b) => a + b, 0) / prevLC.length;
+      return { T, xa: X[ss.i], xb: X[ss.j], xL };
+    }
+    prevLC = liquidContacts(tl);
+  }
+  return null;
+}
+const TOL = 1.5 / NM1;
+function classify(r) {
+  if (!r) return "lens";
+  if (Math.abs(r.xL - r.xa) <= TOL || Math.abs(r.xL - r.xb) <= TOL) return "crossover";
+  return (r.xa < r.xL && r.xL < r.xb) ? "eutectic" : "peritectic";
+}
+
+/* ---- region codes for the raster ---- */
+const L = 0, SOL = 1, LS = 2, SS = 3;
+const REGVAR = ["--c-liq", "--c-sol", "--c-ls", "--c-ss"];
+
+/* alpha and beta are the same solid solution at two different compositions, so
+   they share one colour. Only the NUMBER of phases present changes the shading. */
+function labelRow(T, p, out, g, tag) {
+  build(T, p, g, tag);
+  const nh = hull(g);
+  let e = 0;
+  for (let k = 0; k < N; k++) {
+    while (e < nh - 2 && HULL[e + 1] < k) e++;
+    const i = HULL[e], j = HULL[e + 1];
+    if (j - i >= 2) {
+      if (tag[i] === 1 && tag[j] === 1) out[k] = SS;
+      else if (tag[i] === 0 && tag[j] === 0) out[k] = L;
+      else out[k] = LS;
+    } else {
+      const nearer = (k - i <= j - k) ? i : j;
+      out[k] = tag[nearer] === 0 ? L : SOL;
+    }
+  }
+}
+
+/* ---- palette read from CSS so canvas follows the theme ---- */
+function px(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function rgb(hex) {
+  const h = hex.replace("#", "");
+  const n = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+  return [parseInt(n.slice(0, 2), 16), parseInt(n.slice(2, 4), 16), parseInt(n.slice(4, 6), 16)];
+}
+function pal() {
+  return {
+    ink: px("--ink"), muted: px("--muted"), grid: px("--grid"), rule: px("--rule"),
+    liq: px("--liq"), sol: px("--sol"), inv: px("--inv"), hull: px("--hull"),
+    bond: px("--bond"),
+    panel: px("--panel"), reg: REGVAR.map(v => rgb(px(v)))
+  };
+}
+
+/* ---- canvas plumbing ---- */
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.max(1, Math.round(r.width * d));
+  cv.height = Math.max(1, Math.round(r.height * d));
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+const SANS = '"IBM Plex Sans", system-ui, sans-serif';
+const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+
+/* ---- intro figures ---- */
+function rng(seed) { return function () {
+  seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+  let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}; }
+
+/* A fixed seed keeps the arrangement identical across redraws, so switching
+   theme or resizing does not reshuffle the atoms under the reader. */
+function drawLattice(id, frac, seed) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const cols = 12, rows = 9, n = cols * rows;
+  const pad = 6, cw = (w - 2 * pad) / cols, ch = (h - 2 * pad) / rows;
+  const r = Math.min(cw, ch) * 0.34;
+
+  const isB = new Array(n).fill(false);
+  const want = Math.max(1, Math.round(frac * n));
+  const rand = rng(seed);
+  let placed = 0, guard = 0;
+  while (placed < want && guard++ < 5000) {
+    const k = Math.floor(rand() * n);
+    if (!isB[k]) { isB[k] = true; placed++; }
+  }
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const k = j * cols + i;
+      ctx.beginPath();
+      ctx.arc(pad + (i + 0.5) * cw, pad + (j + 0.5) * ch, r, 0, 6.2832);
+      ctx.fillStyle = isB[k] ? P.liq : P.sol;
+      ctx.globalAlpha = isB[k] ? 1 : 0.42;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+/* Shape comparison only. Plotting the two contributions against their sum does
+   not work: the sum's well is an order of magnitude shallower than either part,
+   so it renders flat. Each curve is normalised to its own depth instead, which
+   is what the reader needs to see - one minimum against two. */
+function drawMix() {
+  const cv = document.getElementById("mix"); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 12, r: 12, t: 20, b: 28 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const M = 200, OM = 2.6;
+  const ent = [], both = [];
+  for (let i = 0; i <= M; i++) {
+    const x = i / M;
+    const sx = (i === 0 || i === M) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+    ent.push(sx); both.push(OM * x * (1 - x) + sx);
+  }
+  const norm = a => {
+    let lo = Infinity, hi = -Infinity;
+    for (const v of a) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const d = (hi - lo) || 1;
+    return a.map(v => (v - lo) / d);
+  };
+  const nEnt = norm(ent), nBoth = norm(both);
+  const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (1 - v) * ph * 0.88 + ph * 0.06;
+
+  const plot = (arr, col, lw, dash) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    for (let i = 0; i <= M; i++) { const x = X2(i), y = Y2(arr[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  plot(nEnt, P.sol, 2.2, [6, 4]);
+  plot(nBoth, P.hull, 3);
+
+  ctx.font = "10.5px " + SANS; ctx.textAlign = "center";
+  ctx.fillStyle = P.sol;
+  ctx.fillText("arrangement only: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
+  ctx.fillStyle = P.ink;
+  ctx.fillText("+ bonding cost: two wells", m.l + pw * 0.5, Y2(nBoth[M / 2]) - 9);
+  ctx.fillStyle = P.muted;
+  ctx.fillText("x = 0", m.l + 16, h - 9);
+  ctx.fillText("x = 1", m.l + pw - 16, h - 9);
+  ctx.textAlign = "right";
+  ctx.fillText("shape only", m.l + pw, m.t - 8);
+}
+
+/* Morse-like pair potential. Only the relative well depths carry meaning here,
+   so the axes are deliberately unlabelled. */
+function morse(r, D, re) { const e = 1 - Math.exp(-3.2 * (r - re)); return D * (e * e - 1); }
+
+function drawBond(id, dAB) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 14, r: 14, t: 14, b: 24 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const dAA = 1.0, dBB = 0.86, avg = (dAA + dBB) / 2;
+  const R0 = 0.62, R1 = 2.5, LO = -1.24, HI = 0.18;
+  const X2 = r => m.l + (r - R0) / (R1 - R0) * pw;
+  const Y2 = v => m.t + (HI - v) / (HI - LO) * ph;
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
+
+  ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(0)); ctx.lineTo(m.l + pw, Y2(0)); ctx.stroke();
+
+  /* the average of the like-bonds: whether A-B sits on it or above it is the point */
+  ctx.strokeStyle = P.muted; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(-avg)); ctx.lineTo(m.l + pw, Y2(-avg)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const curve = (D, re, col, lw) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath();
+    for (let i = 0; i <= 240; i++) {
+      const r = R0 + (R1 - R0) * i / 240, y = Y2(morse(r, D, re));
+      i ? ctx.lineTo(X2(r), y) : ctx.moveTo(X2(r), y);
+    }
+    ctx.stroke();
+  };
+  curve(dAA, 1.00, P.sol, 2.2);
+  curve(dBB, 1.18, P.liq, 2.2);
+  curve(dAB, 1.09, P.bond, 3);
+
+  const dot = (D, re, col) => {
+    ctx.beginPath(); ctx.arc(X2(re), Y2(-D), 3.4, 0, 6.2832);
+    ctx.fillStyle = col; ctx.fill();
+  };
+  dot(dAA, 1.00, P.sol); dot(dBB, 1.18, P.liq); dot(dAB, 1.09, P.bond);
+  ctx.restore();
+
+  ctx.font = "11px " + SANS;
+  ctx.textAlign = "right";
+  ctx.fillStyle = P.sol;  ctx.fillText("A\u2013A", X2(1.00) - 7, Y2(-dAA) + 16);
+  ctx.textAlign = "left";
+  ctx.fillStyle = P.liq;  ctx.fillText("B\u2013B", X2(1.18) + 9, Y2(-dBB) - 9);
+  ctx.textAlign = "center";
+  ctx.fillStyle = P.bond; ctx.fillText("A\u2013B", X2(1.09) - 30, Y2(-dAB) - 9);
+  ctx.fillStyle = P.muted; ctx.textAlign = "right";
+  ctx.fillText("average", m.l + pw - 2, Y2(-avg) - 5);
+  ctx.textAlign = "center";
+  ctx.fillText("separation \u2192", m.l + pw / 2, h - 7);
+}
+
+/* The three contribution strips share one vertical scale, so a flat line really
+   does mean "no cost" beside the hump next to it. */
+function drawG(id, kind) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 12, r: 12, t: 14, b: 18 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const M = 200, GLO = -0.80, GHI = 0.74, OM = 2.6;
+  const val = x => {
+    if (kind === "none") return 0;
+    if (kind === "ord") return OM * x * (1 - x);
+    return (x <= 0 || x >= 1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+  };
+  const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (GHI - v) / (GHI - GLO) * ph;
+
+  ctx.strokeStyle = P.grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(0)); ctx.lineTo(m.l + pw, Y2(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
+  ctx.lineWidth = kind === "none" ? 2.4 : 3;
+  ctx.beginPath();
+  for (let i = 0; i <= M; i++) { const x = X2(i), y = Y2(val(i / M)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+
+  ctx.font = "10.5px " + SANS; ctx.fillStyle = P.muted;
+  ctx.textAlign = "left";  ctx.fillText("x = 0", m.l, h - 5);
+  ctx.textAlign = "right"; ctx.fillText("x = 1", m.l + pw, h - 5);
+  ctx.textAlign = "center";
+  const note = kind === "ent" ? "lowers the cost" : (kind === "ord" ? "raises the cost" : "no change");
+  ctx.fillStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
+  ctx.fillText(note, m.l + pw / 2, kind === "ent" ? m.t + 10 : h - 5);
+}
+
+function drawIntro() {
+  drawLattice("lat1", 0.01, 7);
+  drawLattice("lat2", 0.5, 20240919);
+  drawG("gEnt", "ent");
+  drawBond("bond1", 0.93);   /* A-B on the average: no penalty for mixing */
+  drawBond("bond2", 0.68);   /* A-B below the average: unlike neighbours cost energy */
+  drawG("gMix", "none");
+  drawG("gOrd", "ord");
+  drawMix();
+}
+
+/* ---- G-x panel ---- */
+const gxCanvas = document.getElementById("gx");
+function drawGx(T, p) {
+  const { ctx, w, h } = fit(gxCanvas), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 56, r: 14, t: 14, b: 36 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const cA = p.dHA * (1 - T / p.TmA), cB = p.dHB * (1 - T / p.TmB), RT = R * T;
+  const gl = new Float64Array(N), gs = new Float64Array(N);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < N; i++) {
+    const s = RT * S[i];
+    gl[i] = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
+    gs[i] = p.Oms * XX[i] + s;
+    lo = Math.min(lo, gl[i], gs[i]); hi = Math.max(hi, gl[i], gs[i]);
+  }
+  /* G_s vanishes at both pure ends, so 0 is the natural reference and the
+     depth below it sets the scale. Framing on the full curve range instead
+     lets a large dHB push everything interesting into a few pixels. */
+  if (lo < 0) { const span = -lo; hi = 0.60 * span; lo = lo - 0.10 * span; }
+  else { const pad = (hi - lo) * 0.10 || 1; lo -= pad; hi += pad; }
+  const sx = x => m.l + x * pw, sy = v => m.t + (hi - v) / (hi - lo) * ph;
+
+  ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let k = 0; k <= 4; k++) { const y = m.t + k * ph / 4; ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); }
+  for (let k = 0; k <= 4; k++) { const x = m.l + k * pw / 4; ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); }
+  ctx.stroke();
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
+  const curve = (arr, col) => {
+    ctx.strokeStyle = col; ctx.lineWidth = 2.6; ctx.beginPath();
+    for (let i = 0; i < N; i++) { const x = sx(X[i]), y = sy(arr[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  };
+  curve(gl, P.liq); curve(gs, P.sol);
+
+  build(T, p, G, TAG);
+  const nh = hull(G), tl = ties(nh, TAG);
+  ctx.strokeStyle = P.hull; ctx.lineWidth = 3.4;
+  ctx.setLineDash([9, 5]);
+  ctx.beginPath();
+  for (let k = 0; k < nh; k++) { const i = HULL[k], x = sx(X[i]), y = sy(G[i]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  for (const t of tl) {
+    const ss = t.ti === 1 && t.tj === 1;
+    ctx.fillStyle = ss ? P.inv : P.hull;
+    for (const i of [t.i, t.j]) {
+      ctx.beginPath(); ctx.arc(sx(X[i]), sy(G[i]), 4, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = P.panel; ctx.lineWidth = 1.4; ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+
+  ctx.fillStyle = P.muted; ctx.font = "11px " + SANS; ctx.textAlign = "center";
+  for (let k = 0; k <= 4; k++) ctx.fillText((k / 4).toFixed(2), m.l + k * pw / 4, h - 18);
+  ctx.fillText("x  (mole fraction B)", m.l + pw / 2, h - 4);
+  ctx.textAlign = "right"; ctx.font = "10.5px " + MONO;
+  for (let k = 0; k <= 4; k++) {
+    const v = hi - k * (hi - lo) / 4;
+    ctx.fillText((v / 1000).toFixed(1), m.l - 8, m.t + k * ph / 4 + 3.5);
+  }
+  ctx.save(); ctx.translate(13, m.t + ph / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center"; ctx.font = "11px " + SANS; ctx.fillText("G  (kJ/mol)", 0, 0); ctx.restore();
+
+  ctx.textAlign = "left"; ctx.fillStyle = P.ink; ctx.font = "500 12px " + MONO;
+  ctx.fillText("T = " + Math.round(T) + " K", m.l + 8, m.t + 15);
+}
+
+/* ---- phase diagram raster ---- */
+const pdCanvas = document.getElementById("pd");
+const ROWS = 240;
+const off = document.createElement("canvas");
+function drawPd(p, inv, Tcur, Ttop, Tbot) {
+  const { ctx, w, h } = fit(pdCanvas), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 56, r: 14, t: 14, b: 36 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  off.width = N; off.height = ROWS;
+  const octx = off.getContext("2d");
+  const img = octx.createImageData(N, ROWS);
+  const row = new Uint8Array(N), g = new Float64Array(N), tag = new Uint8Array(N);
+  for (let r = 0; r < ROWS; r++) {
+    const T = Ttop + (Tbot - Ttop) * r / (ROWS - 1);
+    labelRow(T, p, row, g, tag);
+    for (let i = 0; i < N; i++) {
+      const c = P.reg[row[i]], o = (r * N + i) * 4;
+      img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
+    }
+  }
+  octx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, m.l, m.t, pw, ph);
+  ctx.strokeStyle = P.rule; ctx.lineWidth = 1; ctx.strokeRect(m.l + .5, m.t + .5, pw - 1, ph - 1);
+
+  const sy = T => m.t + (Ttop - T) / (Ttop - Tbot) * ph, sx = x => m.l + x * pw;
+
+  if (inv) {
+    ctx.strokeStyle = P.inv; ctx.lineWidth = 1.6; ctx.setLineDash([5, 3]);
+    ctx.beginPath(); ctx.moveTo(m.l, sy(inv.T)); ctx.lineTo(m.l + pw, sy(inv.T)); ctx.stroke();
+    ctx.setLineDash([]);
+    const mark = (x, fill) => {
+      ctx.beginPath(); ctx.arc(sx(x), sy(inv.T), 4.2, 0, 6.2832);
+      ctx.fillStyle = fill; ctx.fill();
+      ctx.strokeStyle = P.panel; ctx.lineWidth = 1.5; ctx.stroke();
+    };
+    mark(inv.xa, P.sol); mark(inv.xb, P.sol); mark(inv.xL, P.liq);
+  }
+  if (Tcur >= Math.min(Ttop, Tbot) && Tcur <= Math.max(Ttop, Tbot)) {
+    ctx.strokeStyle = P.ink; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(m.l, sy(Tcur)); ctx.lineTo(m.l + pw, sy(Tcur)); ctx.stroke();
+  }
+
+  ctx.fillStyle = P.muted; ctx.font = "11px " + SANS; ctx.textAlign = "center";
+  for (let k = 0; k <= 4; k++) ctx.fillText((k / 4).toFixed(2), m.l + k * pw / 4, h - 18);
+  ctx.fillText("x  (mole fraction B)", m.l + pw / 2, h - 4);
+  ctx.textAlign = "right"; ctx.font = "10.5px " + MONO;
+  for (let k = 0; k <= 4; k++) {
+    const T = Ttop - k * (Ttop - Tbot) / 4;
+    ctx.fillText(Math.round(T), m.l - 8, m.t + k * ph / 4 + 3.5);
+  }
+  ctx.save(); ctx.translate(13, m.t + ph / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center"; ctx.font = "11px " + SANS; ctx.fillText("T  (K)", 0, 0); ctx.restore();
+}
+
+/* ---- state and wiring ---- */
+const el = id => document.getElementById(id);
+const P1 = { TmA: 700, TmB: 900, dHA: 12000, dHB: 12000, Oml: 0, Oms: 14000, THI: 1000, TLO: 250 };
+const P2 = { TmA: 700, TmB: 1400, dHA: 12000, dHB: 40000, Oml: 0, Oms: 16000, THI: 1500, TLO: 250 };
+let p = Object.assign({}, P1), Tcur = 600, inv = null;
+
+function readInputs() {
+  p.Oms = parseFloat(el("oms").value) * 1000;
+  p.TmA = parseFloat(el("tma").value);
+  p.TmB = parseFloat(el("tmb").value);
+  p.dHA = parseFloat(el("dha").value) * 1000;
+  p.dHB = parseFloat(el("dhb").value) * 1000;
+  Tcur = parseFloat(el("temp").value);
+}
+function syncLabels() {
+  el("omsv").textContent = (p.Oms / 1000).toFixed(1) + " kJ/mol";
+  el("tempv").textContent = Math.round(Tcur) + " K";
+  el("tmav").textContent = p.TmA + " K";
+  el("tmbv").textContent = p.TmB + " K";
+  el("dhav").textContent = (p.dHA / 1000) + " kJ/mol";
+  el("dhbv").textContent = (p.dHB / 1000) + " kJ/mol";
+  el("dsm").textContent =
+    "A " + (p.dHA / p.TmA).toFixed(1) + "   B " + (p.dHB / p.TmB).toFixed(1) + "  J/mol/K";
+}
+const PILL = {
+  lens:       ["Lens", "complete solubility, no invariant"],
+  eutectic:   ["Eutectic", "L → α + β"],
+  peritectic: ["Peritectic", "L + β → α"],
+  crossover:  ["Crossover", "x_L and x_α within one grid step"]
+};
+function render() {
+  const THI = Math.max(p.TmA, p.TmB) * 1.08;
+  inv = invariant(p, THI, p.TLO, 700);
+  const k = classify(inv);
+  el("pill").dataset.k = k;
+  el("pill").textContent = PILL[k][0];
+  el("reaction").textContent = PILL[k][1];
+  el("fT").textContent = inv ? Math.round(inv.T) + " K" : "—";
+  el("fA").textContent = inv ? inv.xa.toFixed(3) : "—";
+  el("fL").textContent = inv ? inv.xL.toFixed(3) : "—";
+  el("fB").textContent = inv ? inv.xb.toFixed(3) : "—";
+  el("snap").disabled = !inv;
+
+  const Ttop = Math.round(THI), Tbot = Math.round(p.TLO);
+  el("temp").min = Tbot; el("temp").max = Ttop;
+  drawIntro();
+  drawGx(Tcur, p);
+  drawPd(p, inv, Tcur, Ttop, Tbot);
+}
+function update() { readInputs(); syncLabels(); render(); }
+
+for (const id of ["oms", "temp", "tma", "tmb", "dha", "dhb"]) {
+  el(id).addEventListener("input", update);
+}
+function setBranch(src, oms, T, pressed) {
+  el("tma").value = src.TmA; el("tmb").value = src.TmB;
+  el("dha").value = src.dHA / 1000; el("dhb").value = src.dHB / 1000;
+  el("oms").value = oms; p.TLO = src.TLO;
+  el("temp").min = 250; el("temp").max = Math.round(Math.max(src.TmA, src.TmB) * 1.08);
+  el("temp").value = T;
+  el("b1").setAttribute("aria-pressed", pressed === 1 ? "true" : "false");
+  el("b2").setAttribute("aria-pressed", pressed === 2 ? "true" : "false");
+  update();
+}
+el("b1").addEventListener("click", () => setBranch(P1, 14, 600, 1));
+el("b2").addEventListener("click", () => setBranch(P2, 16, 760, 2));
+el("snap").addEventListener("click", () => {
+  if (!inv) return;
+  el("temp").value = Math.round(inv.T + 3);
+  update();
+});
+
+/* ---- sweep table ---- */
+const SWEEP = [
+  [12, "PERI", 721.4, 0.485, 0.020, 0.515], [13, "PERI", 746.0, 0.318, 0.043, 0.682],
+  [14, "PERI", 733.0, 0.205, 0.040, 0.795], [15, "PERI", 722.9, 0.145, 0.037, 0.855],
+  [16, "PERI", 715.7, 0.107, 0.035, 0.892], [17, "PERI", 711.3, 0.083, 0.035, 0.917],
+  [18, "PERI", 707.0, 0.065, 0.033, 0.935], [19, "PERI", 702.7, 0.050, 0.033, 0.950],
+  [20, "PERI", 701.2, 0.040, 0.033, 0.960], [21, "xing", 698.3, 0.033, 0.030, 0.968],
+  [22, "xing", 696.9, 0.028, 0.025, 0.973], [23, "eu", 695.4, 0.022, 0.028, 0.978],
+  [24, "eu", 694.0, 0.018, 0.030, 0.983]
+];
+const KIND = { PERI: "Peritectic", eu: "Eutectic", xing: "Degenerate", lens: "Lens" };
+function fillSweep(rows) {
+  const tb = el("sweep").querySelector("tbody");
+  tb.innerHTML = "";
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    if (r[1] === "xing") tr.className = "mark";
+    tr.innerHTML = "<td>" + r[0].toFixed(0) + "</td><td class='k-" + r[1] + "'>" + KIND[r[1]] +
+      "</td><td>" + r[2].toFixed(1) + "</td><td>" + r[3].toFixed(3) + "</td><td>" +
+      r[4].toFixed(3) + "</td><td>" + r[5].toFixed(3) + "</td>";
+    tb.appendChild(tr);
+  }
+}
+fillSweep(SWEEP);
+el("runsweep").addEventListener("click", () => {
+  const rows = [];
+  for (let O = 12; O <= 24; O++) {
+    const q = { TmA: 700, TmB: 1400, dHA: 12000, dHB: 40000, Oml: 0, Oms: O * 1000 };
+    const r = invariant(q, 1500, 200, 900), k = classify(r);
+    const code = k === "peritectic" ? "PERI" : k === "eutectic" ? "eu" : k === "crossover" ? "xing" : "lens";
+    rows.push(r ? [O, code, r.T, r.xa, r.xL, r.xb] : [O, "lens", NaN, NaN, NaN, NaN]);
+  }
+  fillSweep(rows.filter(r => !isNaN(r[2])));
+});
+
+/* ---- negative-result grid ---- */
+const GTMB = [900, 1100, 1400, 1800, 2400];
+const GOMS = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36];
+const GRID0 = [
+  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
+  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
+  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
+  ["PERI","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
+  ["PERI","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"]
+];
+const ABBR = { PERI: "peri", eu: "eu", xing: "xing", lens: "lens" };
+function fillGrid(cells) {
+  const t = el("grid"), hr = t.querySelector("thead tr");
+  hr.innerHTML = "<th>T<sub>m</sub><sup>B</sup></th>" +
+    GOMS.map(o => "<th>" + o + "</th>").join("");
+  const tb = t.querySelector("tbody"); tb.innerHTML = "";
+  GTMB.forEach((tm, r) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + tm + " K</td>" +
+      cells[r].map(c => "<td class='k-" + c + "'>" + ABBR[c] + "</td>").join("");
+    tb.appendChild(tr);
+  });
+}
+fillGrid(GRID0);
+el("rungrid").addEventListener("click", async () => {
+  const btn = el("rungrid"), stat = el("gridstat");
+  btn.disabled = true;
+  const cells = GTMB.map(() => GOMS.map(() => "lens"));
+  for (let r = 0; r < GTMB.length; r++) {
+    for (let c = 0; c < GOMS.length; c++) {
+      const q = { TmA: 700, TmB: GTMB[r], dHA: 12000, dHB: 12000, Oml: 0, Oms: GOMS[c] * 1000 };
+      const inv2 = invariant(q, Math.max(1.4 * GTMB[r], 1200), 200, 600);
+      const k = classify(inv2);
+      cells[r][c] = k === "peritectic" ? "PERI" : k === "eutectic" ? "eu" : k === "crossover" ? "xing" : "lens";
+    }
+    stat.textContent = "Row " + (r + 1) + " of " + GTMB.length + "…";
+    fillGrid(cells);
+    await new Promise(requestAnimationFrame);
+  }
+  const peri = cells.flat().filter(c => c === "PERI").length;
+  stat.textContent = "Done. " + peri + " peritectic cell" + (peri === 1 ? "" : "s") +
+    " out of " + (GTMB.length * GOMS.length) + ".";
+  btn.disabled = false;
+});
+
+/* ---- redraw on resize and theme change ---- */
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+update();
+</script>
+</body>
+</html>
