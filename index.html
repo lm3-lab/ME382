@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ME 382</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f7f8fa;
+  --panel:#ffffff;
+  --ink:#171b20;
+  --body:#333b44;
+  --muted:#6d7883;
+  --rule:#d9dee4;
+  --liq:#d97a2b;
+  --sol:#3d7ea6;
+  --wash:#efbe86;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0f1215;
+    --panel:#171b20;
+    --ink:#eef1f4;
+    --body:#c3ccd5;
+    --muted:#8c97a3;
+    --rule:#2b333b;
+    --liq:#e8933f;
+    --sol:#6aa8cb;
+    --wash:#6b4a25;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0f1215;
+  --panel:#171b20;
+  --ink:#eef1f4;
+  --body:#c3ccd5;
+  --muted:#8c97a3;
+  --rule:#2b333b;
+  --liq:#e8933f;
+  --sol:#6aa8cb;
+  --wash:#6b4a25;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--body);
+  font:16px/1.65 Spectral, Georgia, serif;
+  padding-inline:20px;
+}
+.wrap{max-width:720px;margin:0 auto;padding-block:56px 72px}
+.eyebrow{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px
+}
+h1{
+  font:600 clamp(30px,5vw,44px)/1.1 Spectral, Georgia, serif;
+  color:var(--ink);margin:0 0 12px;letter-spacing:-.01em
+}
+.lede{margin:0 0 40px;max-width:58ch}
+h2{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--rule)
+}
+.card{
+  display:flex;gap:20px;align-items:flex-start;
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:20px;margin:0 0 14px;text-decoration:none;color:inherit
+}
+a.card:hover{border-color:var(--sol)}
+a.card:focus-visible{outline:2px solid var(--sol);outline-offset:2px}
+.card svg{flex:0 0 auto;width:104px;height:78px}
+.card .t{
+  font:600 17px/1.3 Spectral, Georgia, serif;color:var(--ink);
+  margin:0 0 6px;display:flex;align-items:center;gap:9px;flex-wrap:wrap
+}
+.card p{margin:0;font-size:14.5px;line-height:1.55}
+.go{
+  font:500 12px/1 "IBM Plex Sans", system-ui, sans-serif;
+  color:var(--sol);margin-top:10px;display:block
+}
+.tag{
+  font:500 9.5px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--rule);border-radius:999px;padding:4px 8px
+}
+.card.soon{opacity:.72}
+.foot{
+  margin-top:40px;padding-top:18px;border-top:1px solid var(--rule);
+  font:400 12.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.foot a{color:var(--sol)}
+@media (max-width:520px){
+  .card{flex-direction:column;gap:14px}
+  .card svg{width:100%;height:86px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">University of Michigan</p>
+  <h1>ME 382</h1>
+  <p class="lede">Interactive demonstrations for the course. Each one runs entirely in the
+  browser &mdash; nothing to install, and every figure is computed as you change it rather
+  than drawn in advance.</p>
+
+  <h2>Demonstrations</h2>
+
+  <a class="card" href="phase-topology/">
+    <svg viewBox="0 0 112 84" aria-hidden="true">
+      <path d="M8 10 L56 52 L104 16 L104 5 L8 5 Z" fill="var(--wash)" opacity="0.32"/>
+      <path d="M8 10 L56 52 L104 16" fill="none" stroke="var(--liq)" stroke-width="2.4"
+            stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M20 52 L96 52" fill="none" stroke="var(--sol)" stroke-width="2.4"
+            stroke-linecap="round"/>
+      <path d="M20 52 C14 62 13 68 12 76" fill="none" stroke="var(--sol)" stroke-width="1.6"
+            stroke-linecap="round"/>
+      <path d="M96 52 C102 62 103 68 104 76" fill="none" stroke="var(--sol)" stroke-width="1.6"
+            stroke-linecap="round"/>
+      <circle cx="56" cy="52" r="3.4" fill="var(--liq)"/>
+    </svg>
+    <span>
+      <span class="t">Lens, eutectic, peritectic</span>
+      <p>Why does an alloy melt lower than either metal it is made from? Slide one number
+      and watch a plain freezing range turn into a eutectic, with the energy curves behind
+      it shown live.</p>
+      <span class="go">Open the demonstration &rarr;</span>
+    </span>
+  </a>
+
+  <div class="card soon">
+    <svg viewBox="0 0 112 84" aria-hidden="true">
+      <rect x="8" y="8" width="96" height="68" rx="3" fill="none" stroke="var(--rule)" stroke-width="2"/>
+      <g fill="var(--sol)" opacity="0.5">
+        <circle cx="26" cy="26" r="3"/><circle cx="44" cy="26" r="3"/><circle cx="62" cy="26" r="3"/><circle cx="80" cy="26" r="3"/>
+        <circle cx="26" cy="42" r="3"/><circle cx="46" cy="42" r="3"/><circle cx="66" cy="42" r="3"/><circle cx="84" cy="42" r="3"/>
+        <circle cx="26" cy="58" r="3"/><circle cx="44" cy="58" r="3"/><circle cx="62" cy="58" r="3"/><circle cx="80" cy="58" r="3"/>
+      </g>
+      <path d="M52 16 L52 68" fill="none" stroke="var(--liq)" stroke-width="2"
+            stroke-dasharray="5 4" stroke-linecap="round"/>
+    </svg>
+    <span>
+      <span class="t">Shear strength of BCC iron <span class="tag">In preparation</span></span>
+      <p>A molecular dynamics demonstration of the shear-strength anomaly, showing how
+      dislocations move under load. Being written now on a separate branch.</p>
+    </span>
+  </div>
+
+  <p class="foot">Source and notes on
+  <a href="https://github.com/lm3-lab/ME382">GitHub</a>. Each demonstration folder has its
+  own README covering the model and how to reproduce the numbers.</p>
+
+</div>
+</body>
+</html>
