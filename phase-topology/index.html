@@ -32,6 +32,7 @@
   --hull:#171b20;
   --grid:#dfe4ea;
   --focus:#3d7ea6;
+  --bond:#7d6ba6;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -57,6 +58,7 @@
     --hull:#eef1f4;
     --grid:#262d35;
     --focus:#6aa8cb;
+    --bond:#a493d4;
   }
 }
 :root[data-theme="dark"]{
@@ -82,6 +84,7 @@
   --hull:#eef1f4;
   --grid:#262d35;
   --focus:#6aa8cb;
+  --bond:#a493d4;
 }
 
 *{box-sizing:border-box}
@@ -121,8 +124,10 @@ h1{
 .intro p{margin:0 0 12px;max-width:66ch}
 .introgrid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:16px;margin-top:20px
+  gap:16px;margin:18px 0
 }
+.introgrid.two{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.introgrid.one{grid-template-columns:minmax(0,1fr);max-width:420px}
 .ifig{
   background:var(--panel);border:1px solid var(--rule);border-radius:10px;
   padding:14px;display:grid;gap:9px
@@ -131,7 +136,7 @@ h1{
   margin:0;font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
 }
 .ifig .cap b{color:var(--ink);font-weight:600}
-.ibox{width:100%;aspect-ratio:4/3;max-width:100%}
+.ibox{width:100%;aspect-ratio:3/2;max-width:100%}
 .ibox canvas{width:100%;height:100%;display:block}
 
 /* ---- control bar ---- */
@@ -313,20 +318,35 @@ summary{
 </header>
 
 <section class="intro">
-  <h2>First, the two curves</h2>
-  <p>Each phase &mdash; liquid, and solid &mdash; has an energy curve across composition:
-  how much that phase costs at each mix of A and B. At any temperature the alloy simply
-  takes whichever is cheapest.</p>
-  <p>Mixing always helps. There are vastly more ways to arrange a half-and-half solution than
-  a nearly pure one, and that freedom &mdash; mixing entropy &mdash; pulls G down hardest in
-  the middle. On its own it puts a single minimum at x = 0.5. That is essentially what the
-  liquid does.</p>
-  <p>But atoms in a solid may prefer their own kind. Every unlike neighbour costs a little
-  energy, and <em>that</em> cost is also largest at x = 0.5. When it outgrows the entropy gain,
-  the single well splits in two &mdash; one A-rich, one B-rich. That double well is what you
-  are about to create with the slider.</p>
+  <h2>Where the curves come from</h2>
+  <p>Start with a single bond. Pull two atoms apart and the energy rises; push them together
+  and it rises too. In between sits a comfortable separation &mdash; the bottom of the well.
+  How deep that well is tells you how much the pair likes being neighbours.</p>
 
-  <div class="introgrid">
+  <div class="introgrid two">
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond1" role="img"
+        aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
+      <p class="cap"><b>Mixing.</b> An A&ndash;B bond is about as good as the average of an
+      A&ndash;A and a B&ndash;B. Swapping who sits next to whom costs nothing, so the atoms
+      are happy to intermingle.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond2" role="img"
+        aria-label="Bond energy curves where the A-B well is shallower than the average, so unlike neighbours cost energy"></canvas></div>
+      <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower. Now every unlike
+      neighbour costs a little energy &mdash; and a half-and-half mixture has the most unlike
+      neighbours of all.</p>
+    </div>
+  </div>
+
+  <p>So the energy penalty, when there is one, is largest right in the middle at half and half.
+  On its own it would push the alloy apart into A-rich and B-rich regions.</p>
+
+  <p>Pulling the other way is the sheer number of arrangements available. There are vastly more
+  ways to lay out a half-and-half mixture than a nearly pure one, and nature counts them:</p>
+
+  <div class="introgrid two">
     <div class="ifig">
       <div class="ibox"><canvas id="lat1" role="img"
         aria-label="A lattice of A atoms containing a single B atom"></canvas></div>
@@ -337,14 +357,20 @@ summary{
       <div class="ibox"><canvas id="lat2" role="img"
         aria-label="A lattice with A and B atoms mixed in equal numbers at random"></canvas></div>
       <p class="cap"><b>x = 0.50.</b> Half and half. Astronomically many distinct arrangements,
-      so the entropy gain is largest here.</p>
+      so this freedom counts for most here.</p>
     </div>
+  </div>
+
+  <p>Both effects peak in the middle, and they point in opposite directions. Their balance is
+  the energy curve of the phase &mdash; what it costs at each composition:</p>
+
+  <div class="introgrid one">
     <div class="ifig">
       <div class="ibox"><canvas id="mix" role="img"
-        aria-label="Entropy lowers the energy in the middle, ordering energy raises it, and their sum has two minima"></canvas></div>
-      <p class="cap"><b>The competition.</b> Mixing alone gives one minimum, in the middle.
-      Add the cost of unlike neighbours &mdash; largest in the middle too &mdash; and it
-      splits into two.</p>
+        aria-label="Freedom of arrangement alone gives one minimum; adding the unlike-neighbour cost gives two"></canvas></div>
+      <p class="cap"><b>The result.</b> With no penalty, one minimum in the middle &mdash;
+      roughly what the liquid does. Add the unlike-neighbour cost and it splits into two, one
+      A-rich and one B-rich. That double well is what you are about to make with the slider.</p>
     </div>
   </div>
 </section>
@@ -659,6 +685,7 @@ function pal() {
   return {
     ink: px("--ink"), muted: px("--muted"), grid: px("--grid"), rule: px("--rule"),
     liq: px("--liq"), sol: px("--sol"), inv: px("--inv"), hull: px("--hull"),
+    bond: px("--bond"),
     panel: px("--panel"), reg: REGVAR.map(v => rgb(px(v)))
   };
 }
@@ -753,7 +780,7 @@ function drawMix() {
 
   ctx.font = "10.5px " + SANS; ctx.textAlign = "center";
   ctx.fillStyle = P.sol;
-  ctx.fillText("mixing only: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
+  ctx.fillText("no penalty: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
   ctx.fillStyle = P.ink;
   ctx.fillText("+ unlike-neighbour cost", m.l + pw * 0.5, Y2(nBoth[M / 2]) - 9);
   ctx.fillStyle = P.muted;
@@ -763,7 +790,73 @@ function drawMix() {
   ctx.fillText("shape only", m.l + pw, m.t - 8);
 }
 
-function drawIntro() { drawLattice("lat1", 0.01, 7); drawLattice("lat2", 0.5, 20240919); drawMix(); }
+/* Morse-like pair potential. Only the relative well depths carry meaning here,
+   so the axes are deliberately unlabelled. */
+function morse(r, D, re) { const e = 1 - Math.exp(-3.2 * (r - re)); return D * (e * e - 1); }
+
+function drawBond(id, dAB) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 14, r: 14, t: 14, b: 24 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const dAA = 1.0, dBB = 0.86, avg = (dAA + dBB) / 2;
+  const R0 = 0.62, R1 = 2.5, LO = -1.24, HI = 0.18;
+  const X2 = r => m.l + (r - R0) / (R1 - R0) * pw;
+  const Y2 = v => m.t + (HI - v) / (HI - LO) * ph;
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
+
+  ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(0)); ctx.lineTo(m.l + pw, Y2(0)); ctx.stroke();
+
+  /* the average of the like-bonds: whether A-B sits on it or above it is the point */
+  ctx.strokeStyle = P.muted; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(-avg)); ctx.lineTo(m.l + pw, Y2(-avg)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const curve = (D, re, col, lw) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath();
+    for (let i = 0; i <= 240; i++) {
+      const r = R0 + (R1 - R0) * i / 240, y = Y2(morse(r, D, re));
+      i ? ctx.lineTo(X2(r), y) : ctx.moveTo(X2(r), y);
+    }
+    ctx.stroke();
+  };
+  curve(dAA, 1.00, P.sol, 2.2);
+  curve(dBB, 1.18, P.liq, 2.2);
+  curve(dAB, 1.09, P.bond, 3);
+
+  const dot = (D, re, col) => {
+    ctx.beginPath(); ctx.arc(X2(re), Y2(-D), 3.4, 0, 6.2832);
+    ctx.fillStyle = col; ctx.fill();
+  };
+  dot(dAA, 1.00, P.sol); dot(dBB, 1.18, P.liq); dot(dAB, 1.09, P.bond);
+  ctx.restore();
+
+  ctx.font = "11px " + SANS;
+  ctx.textAlign = "right";
+  ctx.fillStyle = P.sol;  ctx.fillText("A\u2013A", X2(1.00) - 7, Y2(-dAA) + 16);
+  ctx.textAlign = "left";
+  ctx.fillStyle = P.liq;  ctx.fillText("B\u2013B", X2(1.18) + 9, Y2(-dBB) - 9);
+  ctx.textAlign = "center";
+  ctx.fillStyle = P.bond; ctx.fillText("A\u2013B", X2(1.09) - 30, Y2(-dAB) - 9);
+  ctx.fillStyle = P.muted; ctx.textAlign = "right";
+  ctx.fillText("average", m.l + pw - 2, Y2(-avg) - 5);
+  ctx.textAlign = "center";
+  ctx.fillText("separation \u2192", m.l + pw / 2, h - 7);
+}
+
+function drawIntro() {
+  drawBond("bond1", 0.93);   /* A-B on the average: no penalty for mixing */
+  drawBond("bond2", 0.68);   /* A-B below the average: unlike neighbours cost energy */
+  drawLattice("lat1", 0.01, 7);
+  drawLattice("lat2", 0.5, 20240919);
+  drawMix();
+}
 
 /* ---- G-x panel ---- */
 const gxCanvas = document.getElementById("gx");
