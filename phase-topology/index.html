@@ -130,13 +130,20 @@ h1{
 .introgrid.one{grid-template-columns:minmax(0,1fr);max-width:420px}
 .ifig{
   background:var(--panel);border:1px solid var(--rule);border-radius:10px;
-  padding:14px;display:grid;gap:9px
+  padding:14px;display:grid;gap:9px;align-content:start
 }
 .ifig .cap{
   margin:0;font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
 }
 .ifig .cap b{color:var(--ink);font-weight:600}
 .ibox{width:100%;aspect-ratio:3/2;max-width:100%}
+.gbox{width:100%;aspect-ratio:5/2;max-width:100%}
+.gbox canvas{width:100%;height:100%;display:block}
+.steplbl{
+  font:500 10.5px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:26px 0 0
+}
 .ibox canvas{width:100%;height:100%;display:block}
 
 /* ---- control bar ---- */
@@ -319,33 +326,10 @@ summary{
 
 <section class="intro">
   <h2>Where the curves come from</h2>
-  <p>Start with a single bond. Pull two atoms apart and the energy rises; push them together
-  and it rises too. In between sits a comfortable separation &mdash; the bottom of the well.
-  How deep that well is tells you how much the pair likes being neighbours.</p>
+  <p>Two things decide what a phase costs at a given composition, and they pull against each
+  other. Both are strongest at half and half.</p>
 
-  <div class="introgrid two">
-    <div class="ifig">
-      <div class="ibox"><canvas id="bond1" role="img"
-        aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
-      <p class="cap"><b>Mixing.</b> An A&ndash;B bond is about as good as the average of an
-      A&ndash;A and a B&ndash;B. Swapping who sits next to whom costs nothing, so the atoms
-      are happy to intermingle.</p>
-    </div>
-    <div class="ifig">
-      <div class="ibox"><canvas id="bond2" role="img"
-        aria-label="Bond energy curves where the A-B well is shallower than the average, so unlike neighbours cost energy"></canvas></div>
-      <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower. Now every unlike
-      neighbour costs a little energy &mdash; and a half-and-half mixture has the most unlike
-      neighbours of all.</p>
-    </div>
-  </div>
-
-  <p>So the energy penalty, when there is one, is largest right in the middle at half and half.
-  On its own it would push the alloy apart into A-rich and B-rich regions.</p>
-
-  <p>Pulling the other way is the sheer number of arrangements available. There are vastly more
-  ways to lay out a half-and-half mixture than a nearly pure one, and nature counts them:</p>
-
+  <p class="steplbl">1 &middot; Freedom of arrangement</p>
   <div class="introgrid two">
     <div class="ifig">
       <div class="ibox"><canvas id="lat1" role="img"
@@ -356,21 +340,54 @@ summary{
     <div class="ifig">
       <div class="ibox"><canvas id="lat2" role="img"
         aria-label="A lattice with A and B atoms mixed in equal numbers at random"></canvas></div>
-      <p class="cap"><b>x = 0.50.</b> Half and half. Astronomically many distinct arrangements,
-      so this freedom counts for most here.</p>
+      <p class="cap"><b>x = 0.50.</b> Half and half. Astronomically many distinct
+      arrangements.</p>
+    </div>
+  </div>
+  <div class="introgrid one">
+    <div class="ifig">
+      <div class="gbox"><canvas id="gEnt" role="img"
+        aria-label="The arrangement contribution to the energy curve: a single well with its minimum in the middle"></canvas></div>
+      <p class="cap"><b>What it does to the curve.</b> Having more ways to arrange the atoms
+      always lowers the cost, and lowers it most in the middle. On its own this puts a single
+      minimum at half and half.</p>
     </div>
   </div>
 
-  <p>Both effects peak in the middle, and they point in opposite directions. Their balance is
-  the energy curve of the phase &mdash; what it costs at each composition:</p>
+  <p class="steplbl">2 &middot; Strength of the bonds</p>
+  <p>Now the other side. Pull two atoms apart and the energy rises; push them together and it
+  rises too. In between sits a comfortable separation, and the depth of that well says how much
+  the pair likes being neighbours. What matters is how an A&ndash;B bond compares with the
+  average of an A&ndash;A and a B&ndash;B, marked here as a dashed line.</p>
 
+  <div class="introgrid two">
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond1" role="img"
+        aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
+      <div class="gbox"><canvas id="gMix" role="img"
+        aria-label="The bonding contribution to the energy curve in this case is flat"></canvas></div>
+      <p class="cap"><b>Mixing.</b> The A&ndash;B well sits on the average, so swapping who
+      sits next to whom costs nothing. The bonding contribution to the curve is flat.</p>
+    </div>
+    <div class="ifig">
+      <div class="ibox"><canvas id="bond2" role="img"
+        aria-label="Bond energy curves where the A-B well is shallower than the average"></canvas></div>
+      <div class="gbox"><canvas id="gOrd" role="img"
+        aria-label="The bonding contribution to the energy curve in this case is a hump peaking in the middle"></canvas></div>
+      <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower than the average, so every
+      unlike neighbour costs a little. A half-and-half mixture has the most of them, so the
+      contribution humps up in the middle.</p>
+    </div>
+  </div>
+
+  <p class="steplbl">3 &middot; Put them together</p>
   <div class="introgrid one">
     <div class="ifig">
       <div class="ibox"><canvas id="mix" role="img"
-        aria-label="Freedom of arrangement alone gives one minimum; adding the unlike-neighbour cost gives two"></canvas></div>
-      <p class="cap"><b>The result.</b> With no penalty, one minimum in the middle &mdash;
-      roughly what the liquid does. Add the unlike-neighbour cost and it splits into two, one
-      A-rich and one B-rich. That double well is what you are about to make with the slider.</p>
+        aria-label="Arrangement freedom alone gives one minimum; adding the bonding cost gives two"></canvas></div>
+      <p class="cap"><b>The result.</b> With no bonding penalty, one minimum in the middle
+      &mdash; roughly what the liquid does. Add the hump and it splits into two, one A-rich and
+      one B-rich. That double well is what you are about to make with the slider.</p>
     </div>
   </div>
 </section>
@@ -780,9 +797,9 @@ function drawMix() {
 
   ctx.font = "10.5px " + SANS; ctx.textAlign = "center";
   ctx.fillStyle = P.sol;
-  ctx.fillText("no penalty: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
+  ctx.fillText("arrangement only: one well", m.l + pw * 0.5, Y2(nEnt[M / 2]) + 15);
   ctx.fillStyle = P.ink;
-  ctx.fillText("+ unlike-neighbour cost", m.l + pw * 0.5, Y2(nBoth[M / 2]) - 9);
+  ctx.fillText("+ bonding cost: two wells", m.l + pw * 0.5, Y2(nBoth[M / 2]) - 9);
   ctx.fillStyle = P.muted;
   ctx.fillText("x = 0", m.l + 16, h - 9);
   ctx.fillText("x = 1", m.l + pw - 16, h - 9);
@@ -850,11 +867,51 @@ function drawBond(id, dAB) {
   ctx.fillText("separation \u2192", m.l + pw / 2, h - 7);
 }
 
+/* The three contribution strips share one vertical scale, so a flat line really
+   does mean "no cost" beside the hump next to it. */
+function drawG(id, kind) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const { ctx, w, h } = fit(cv), P = pal();
+  ctx.clearRect(0, 0, w, h);
+  const m = { l: 12, r: 12, t: 14, b: 18 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  if (pw <= 10 || ph <= 10) return;
+
+  const M = 200, GLO = -0.80, GHI = 0.74, OM = 2.6;
+  const val = x => {
+    if (kind === "none") return 0;
+    if (kind === "ord") return OM * x * (1 - x);
+    return (x <= 0 || x >= 1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+  };
+  const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (GHI - v) / (GHI - GLO) * ph;
+
+  ctx.strokeStyle = P.grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(m.l, Y2(0)); ctx.lineTo(m.l + pw, Y2(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
+  ctx.lineWidth = kind === "none" ? 2.4 : 3;
+  ctx.beginPath();
+  for (let i = 0; i <= M; i++) { const x = X2(i), y = Y2(val(i / M)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+
+  ctx.font = "10.5px " + SANS; ctx.fillStyle = P.muted;
+  ctx.textAlign = "left";  ctx.fillText("x = 0", m.l, h - 5);
+  ctx.textAlign = "right"; ctx.fillText("x = 1", m.l + pw, h - 5);
+  ctx.textAlign = "center";
+  const note = kind === "ent" ? "lowers the cost" : (kind === "ord" ? "raises the cost" : "no change");
+  ctx.fillStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
+  ctx.fillText(note, m.l + pw / 2, kind === "ent" ? m.t + 10 : h - 5);
+}
+
 function drawIntro() {
-  drawBond("bond1", 0.93);   /* A-B on the average: no penalty for mixing */
-  drawBond("bond2", 0.68);   /* A-B below the average: unlike neighbours cost energy */
   drawLattice("lat1", 0.01, 7);
   drawLattice("lat2", 0.5, 20240919);
+  drawG("gEnt", "ent");
+  drawBond("bond1", 0.93);   /* A-B on the average: no penalty for mixing */
+  drawBond("bond2", 0.68);   /* A-B below the average: unlike neighbours cost energy */
+  drawG("gMix", "none");
+  drawG("gOrd", "ord");
   drawMix();
 }
 
