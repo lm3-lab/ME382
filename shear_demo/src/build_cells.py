@@ -99,15 +99,23 @@ def make_block(n_cells, a=A0, xscale=1.0, orient=ORIENT):
 # LAMMPS data file
 # ----------------------------------------------------------------------------
 
-def write_data(path, pos, L, mass=MASS_FE, title="BCC Fe"):
+def write_data(path, pos, L, mass=MASS_FE, title="BCC Fe", types=None):
+    """Write a LAMMPS data file.  `types` is an optional per-atom type array."""
+    if types is None:
+        types = np.ones(len(pos), dtype=int)
+    types = np.asarray(types, dtype=int)
+    ntypes = int(types.max())
     with open(path, "w") as f:
-        f.write(f"{title}\n\n{len(pos)} atoms\n1 atom types\n\n")
+        f.write(f"{title}\n\n{len(pos)} atoms\n{ntypes} atom types\n\n")
         f.write(f"0.0 {L[0]:.10f} xlo xhi\n")
         f.write(f"0.0 {L[1]:.10f} ylo yhi\n")
         f.write(f"0.0 {L[2]:.10f} zlo zhi\n\n")
-        f.write(f"Masses\n\n1 {mass}\n\nAtoms # atomic\n\n")
-        for i, (x, y, z) in enumerate(pos, 1):
-            f.write(f"{i} 1 {x:.8f} {y:.8f} {z:.8f}\n")
+        f.write("Masses\n\n")
+        for t in range(1, ntypes + 1):
+            f.write(f"{t} {mass}\n")
+        f.write("\nAtoms # atomic\n\n")
+        for i, ((x, y, z), t) in enumerate(zip(pos, types), 1):
+            f.write(f"{i} {t} {x:.8f} {y:.8f} {z:.8f}\n")
 
 
 # ----------------------------------------------------------------------------

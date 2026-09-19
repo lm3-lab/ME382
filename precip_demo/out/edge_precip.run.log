@@ -1,0 +1,3 @@
+[edge_precip] 17136 atoms from out/edge_precip.data, box = [64.292 64.609 48.959] A
+[edge_precip] relaxed, PE = -69832.2167 eV (-4.075176 eV/atom)
+[edge_precip] non-BCC (CNA) atoms after relaxation: 1218 / 17136

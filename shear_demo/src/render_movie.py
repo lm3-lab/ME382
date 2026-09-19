@@ -73,15 +73,17 @@ def box_corners(L):
 # ------------------------------------------------------------------ data ---
 def load_case(outdir, case, slab, stride, rng=None):
     traj = os.path.join(outdir, f"{case}.shear.dump")
-    frames = read_frames(traj, fields={"x", "y", "z", "c_cna"})
+    frames = read_frames(traj, fields={"x", "y", "z", "c_cna", "type"})
     stress = np.loadtxt(os.path.join(outdir, f"{case}.stress.txt"), skiprows=2)
     packed = []
     for fr in frames:
         x, y, z, cna = fr["x"], fr["y"], fr["z"], fr["c_cna"]
+        # atom type 2, where present, is a rigid second-phase particle
+        part = (fr["type"] == 2) if "type" in fr else np.zeros(len(x), bool)
         ylo, yhi = y.min(), y.max()
         grip = (y < ylo + slab) | (y > yhi - slab)
-        defect = (~grip) & (cna != 3)
-        bulk = (~grip) & (~defect)
+        defect = (~grip) & (~part) & (cna != 3)
+        bulk = (~grip) & (~part) & (~defect)
         # a *random* subsample -- taking every n-th atom of an id-sorted list
         # samples lattice planes and produces heavy moire fringes
         bi = np.where(bulk)[0]
@@ -94,6 +96,7 @@ def load_case(outdir, case, slab, stride, rng=None):
             bulk=np.stack([x[bi], y[bi], z[bi]], 1),
             grip=np.stack([x[gi], y[gi], z[gi]], 1),
             defect=np.stack([x[defect], y[defect], z[defect]], 1),
+            precip=np.stack([x[part], y[part], z[part]], 1),
             ndef=int(defect.sum())))
     return packed, stress
 

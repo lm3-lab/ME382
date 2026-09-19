@@ -46,16 +46,28 @@ def main():
     ap.add_argument("--frames", type=int, default=240)
     ap.add_argument("--outdir", default="out")
     ap.add_argument("--relax-only", action="store_true")
+    ap.add_argument("--data", default=None,
+                    help="read this prebuilt data file instead of building one")
+    ap.add_argument("--freeze-type", type=int, default=0,
+                    help="hold every atom of this type rigid (a hard particle)")
+    ap.add_argument("--tag", default=None, help="output basename")
     ap.add_argument("--seed", type=int, default=12345)
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    tag = args.case
-    datafile = os.path.join(args.outdir, f"{tag}.data")
-
-    pos, L = BUILDERS[args.case](args.nx, args.ny, args.nz)
-    write_data(datafile, pos, L, title=f"BCC Fe {args.case} (1-10)[111]")
-    print(f"[{tag}] {len(pos)} atoms, box = {np.round(L,3)} A", flush=True)
+    tag = args.tag or args.case
+    if args.data:
+        datafile = args.data
+        L = np.array([float(l.split()[1]) for l in open(datafile)
+                      if l.rstrip().endswith(("xhi", "yhi", "zhi"))])
+        npos = int(next(l for l in open(datafile) if l.rstrip().endswith("atoms")).split()[0])
+        print(f"[{tag}] {npos} atoms from {datafile}, box = {np.round(L,3)} A",
+              flush=True)
+    else:
+        datafile = os.path.join(args.outdir, f"{tag}.data")
+        pos, L = BUILDERS[args.case](args.nx, args.ny, args.nz)
+        write_data(datafile, pos, L, title=f"BCC Fe {args.case} (1-10)[111]")
+        print(f"[{tag}] {len(pos)} atoms, box = {np.round(L,3)} A", flush=True)
 
     from lammps import lammps
     lmp = lammps(cmdargs=["-log", os.path.join(args.outdir, f"{tag}.log"),
@@ -68,6 +80,18 @@ def main():
     area = L[0] * L[2]                        # slip-plane area
     vol_mobile = area * (yhi_lo - ylo_hi)
 
+    if args.freeze_type:
+        # The particle is NOT frozen during minimisation -- it relaxes with the
+        # rest of the crystal, so the starting structure is identical to the
+        # dislocation-only run.  It is excluded from `mobile`, so from the
+        # thermal equilibration onwards it is never integrated, i.e. rigid.
+        freeze_cmds = (f"group precip type {args.freeze_type}\n"
+                       f"group mobile subtract interior precip")
+        pair_map = " ".join(["Fe"] * args.freeze_type)
+    else:
+        freeze_cmds = "group mobile union interior"
+        pair_map = "Fe"
+
     c(f"""
 units metal
 dimension 3
@@ -76,20 +100,21 @@ atom_style atomic
 atom_modify map array sort 0 0.0
 read_data {datafile}
 pair_style eam/fs
-pair_coeff * * {POT} Fe
+pair_coeff * * {POT} {pair_map}
 
 region rlo block INF INF INF {ylo_hi} INF INF units box
 region rhi block INF INF {yhi_lo} INF INF INF units box
 group lo region rlo
 group hi region rhi
 group boundary union lo hi
-group mobile subtract all boundary
+group interior subtract all boundary
+{freeze_cmds}
 
 compute cna all cna/atom {CNA_CUT}
 compute cs  all centro/atom bcc
 compute peat all pe/atom
-compute sa mobile stress/atom NULL
-compute svir mobile reduce sum c_sa[1] c_sa[2] c_sa[3] c_sa[4] c_sa[5] c_sa[6]
+compute sa interior stress/atom NULL
+compute svir interior reduce sum c_sa[1] c_sa[2] c_sa[3] c_sa[4] c_sa[5] c_sa[6]
 
 timestep {args.dt}
 velocity all set 0.0 0.0 0.0
@@ -141,6 +166,8 @@ undump d0
     scomp, fcomp = 4, 1                  # c_sa[4] = xy ; force component x
     tauvar = f"(c_svir[{scomp}]/{vol_mobile})*{BAR_TO_GPA}"
 
+    freeze_shear = ("fix frz_p precip setforce 0.0 0.0 0.0"
+                    if args.freeze_type else "")
     thermofile = os.path.join(args.outdir, f"{tag}.stress.txt")
     trajfile = os.path.join(args.outdir, f"{tag}.shear.dump")
 
@@ -156,6 +183,7 @@ fix frz_lo lo setforce 0.0 0.0 0.0
 velocity lo set 0.0 0.0 0.0
 fix mv_hi hi move linear {vx} {vy} {vz} units box
 fix frc_hi hi setforce 0.0 0.0 0.0
+{freeze_shear}
 
 variable gam  equal (step*{args.dt}*{v})/{h}
 variable tauv equal {tauvar}
