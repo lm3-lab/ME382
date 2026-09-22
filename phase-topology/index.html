@@ -113,6 +113,17 @@ h1{
   color:var(--ink);margin:0 0 10px;text-wrap:balance;letter-spacing:-.01em
 }
 .standfirst{margin:0;max-width:62ch;color:var(--body)}
+.topo{margin:16px 0 0;max-width:66ch}
+.topo > p{margin:0 0 9px}
+.topo ul{margin:0;padding:0;list-style:none}
+.topo li{margin:0 0 9px;padding-left:15px;position:relative}
+.topo li:last-child{margin-bottom:0}
+.topo li::before{
+  content:"";position:absolute;left:0;top:8px;
+  width:5px;height:5px;border-radius:50%;background:var(--muted)
+}
+.topo b{color:var(--ink);font-weight:600}
+.rxn{font:400 12.5px/1.5 "IBM Plex Mono", ui-monospace, monospace;color:var(--sol)}
 
 /* ---- intro ---- */
 .intro{margin:0 0 26px}
@@ -293,7 +304,27 @@ summary{
   <h1>Lens, Eutectic, Peritectic</h1>
   <p class="standfirst">NOT EXAMINED! Here, you can slide one number to control ordering in a binary alloy, seeing how the phase diagram changes from lens to Eutectic. 
     Disordered: random solid solution. Ordered: two separate phases (e.g. precipitates in liquid or solid host). 
-  Both panels are worked out live from energy curves as you drag &mdash;.</p>
+  Both panels are worked out live from the free energy curves as you change
+  &Omega;<sub>s</sub>, the energetic cost of mixing.</p>
+
+  <div class="topo">
+    <p>We will look at three binary phase diagrams (S<sub>1</sub>, S<sub>2</sub> are the two
+    solids, &alpha; and &beta; in the readout below):</p>
+    <ul>
+      <li><b>Lens</b> &mdash; <span class="rxn">L &rarr; L + S</span>. Cost of mixing low: one
+      solid solution at every composition, freezing through a liquid + solid band.
+      (e.g. Cu&ndash;Ni)</li>
+
+      <li><b>Eutectic</b> &mdash; <span class="rxn">L &rarr; S<sub>1</sub> + S<sub>2</sub></span>.
+      Cost of mixing high: the solid separates in two, and the liquid can cool straight into it.
+      (e.g. Pb&ndash;Sn)</li>
+
+      <li><b>Peritectic</b> &mdash; <span class="rxn">L + S<sub>2</sub> &rarr; S<sub>1</sub></span>.
+      Cost of mixing high, but the liquid is confined to one corner &mdash; <em>outside</em> both
+      solids rather than between them &mdash; so it reacts with one instead of splitting into
+      both. Typically when the two ends melt very differently. (e.g. Fe&ndash;C)</li>
+    </ul>
+  </div>
 </header>
 
 <section class="intro">
