@@ -12,13 +12,13 @@ Two phases, a liquid and one solid solution, both regular. The solid is referenc
 each pure end, so the melting terms carry all the temperature dependence.
 
 ```
-G_l(x) = (1-x) dHA (1 - T/TmA) + x dHB (1 - T/TmB) + Om_l x(1-x) + R T s(x)
-G_s(x) =                                             Om_s x(1-x) + R T s(x)
-s(x)   = x ln x + (1-x) ln(1-x)
+G_l(x) = (1-x) dHA (1 - T/TmA) + x dHB (1 - T/TmB) + Om_l x(1-x) - R T s(x)
+G_s(x) =                                             Om_s x(1-x) - R T s(x)
+s(x)   = -x ln x - (1-x) ln(1-x)
 ```
 
-Note `s(x)` is *minus* the reduced mixing entropy: `S_mix = -R s(x) >= 0`, so the term
-`+R T s(x) = -T S_mix` is negative and mixing lowers G, as it must.
+`s(x) >= 0` is the ideal mixing entropy in units of R, so `-R T s(x)` is the `-TS` term of
+`F = E - TS`.
 
 `Om_l = 0` throughout, so the liquid stays ideal. **`Om_s` is the only knob.**
 

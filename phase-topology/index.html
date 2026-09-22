@@ -473,12 +473,16 @@ worked out at every temperature and stacked up.</p>
 "use strict";
 const R = 8.314, N = 401, NM1 = N - 1;
 
+/* Ideal mixing entropy in units of R: s(x) = -x ln x - (1-x) ln(1-x) >= 0.
+   It enters the free energy as -T s(x), so every use below carries that minus. */
+function sMix(x) { return (x <= 0 || x >= 1) ? 0 : -x * Math.log(x) - (1 - x) * Math.log(1 - x); }
+
 /* composition grid and the T-independent pieces, precomputed once */
 const X = new Float64Array(N), XB = new Float64Array(N), XX = new Float64Array(N), S = new Float64Array(N);
 for (let i = 0; i < N; i++) {
   const x = i / NM1;
   X[i] = x; XB[i] = 1 - x; XX[i] = x * (1 - x);
-  S[i] = (i === 0 || i === NM1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+  S[i] = sMix(x);
 }
 
 /* ---- model ---- */
@@ -487,9 +491,9 @@ const TAG = new Uint8Array(N);       // 0 = liquid, 1 = solid
 function build(T, p, g, tag) {
   const cA = p.dHA * (1 - T / p.TmA), cB = p.dHB * (1 - T / p.TmB), RT = R * T;
   for (let i = 0; i < N; i++) {
-    const s = RT * S[i];
-    const gl = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
-    const gs = p.Oms * XX[i] + s;
+    const tS = RT * S[i];
+    const gl = XB[i] * cA + X[i] * cB + p.Oml * XX[i] - tS;
+    const gs = p.Oms * XX[i] - tS;
     if (gl < gs) { g[i] = gl; tag[i] = 0; } else { g[i] = gs; tag[i] = 1; }
   }
 }
@@ -661,8 +665,8 @@ function drawMix() {
   const ent = [], both = [];
   for (let i = 0; i <= M; i++) {
     const x = i / M;
-    const sx = (i === 0 || i === M) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
-    ent.push(sx); both.push(OM * x * (1 - x) + sx);
+    const sx = sMix(x);
+    ent.push(-sx); both.push(OM * x * (1 - x) - sx);
   }
   const norm = a => {
     let lo = Infinity, hi = -Infinity;
@@ -790,7 +794,7 @@ function drawG(id, kind) {
   const val = x => {
     if (kind === "none") return 0;
     if (kind === "ord") return OM * x * (1 - x);
-    return (x <= 0 || x >= 1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+    return -sMix(x);
   };
   const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (GHI - v) / (GHI - GLO) * ph;
 
@@ -833,9 +837,9 @@ function drawGx(T, p) {
   const gl = new Float64Array(N), gs = new Float64Array(N);
   let lo = Infinity, hi = -Infinity;
   for (let i = 0; i < N; i++) {
-    const s = RT * S[i];
-    gl[i] = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
-    gs[i] = p.Oms * XX[i] + s;
+    const tS = RT * S[i];
+    gl[i] = XB[i] * cA + X[i] * cB + p.Oml * XX[i] - tS;
+    gs[i] = p.Oms * XX[i] - tS;
     lo = Math.min(lo, gl[i], gs[i]); hi = Math.max(hi, gl[i], gs[i]);
   }
   /* G_s vanishes at both pure ends, so 0 is the natural reference and the
