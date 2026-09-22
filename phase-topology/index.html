@@ -320,16 +320,18 @@ summary{
 <header class="mast">
   <p class="eyebrow">ME 382 · Binary phase equilibria</p>
   <h1>Lens, Eutectic, Peritectic</h1>
-  <p class="standfirst">Slide one number and watch a plain freezing range turn into a eutectic.
-  Both panels are worked out live from energy curves as you drag &mdash; nothing is drawn by hand.</p>
+  <p class="standfirst">NOT EXAMINED! Here, you can slide one number to control ordering in a binary alloy, seeing how the phase diagram changes from lens to Eutectic. 
+    Disordered: random solid solution. Ordered: two separate phases (e.g. precipitates in liquid or solid host). 
+  Both panels are worked out live from energy curves as you drag &mdash;.</p>
 </header>
 
 <section class="intro">
-  <h2>The (free) energy as a function of composition</h2>
+  <h2>The free energy as a function of composition</h2>
   <p>We decide to make a binary AB alloy with a composition 0 &lt;= x &lt;= 1.</p>
-  <p>There can be a mixture of phases: we can work out how much of each with the lever rule.</p>
-  <p>Whether this happens or not depends on the interplay of entropy (number of distinct configurations) and energy (cost per configuration)</p>
-  <p>When the energy doesn't depend on composition, entropy dominates, and vice versa. </p>
+  <p>There can be a mixture of separated phases: we can work out how much of each, and their composition, with the lever rule.</p>
+  <p>Whether phase separation happens or not depends on the interplay of entropy (number of distinct configurations) againt energy (bonding energy per configuration)</p>
+  <p>When the energy doesn't depend on composition, entropy dominates, but many mixtures prefer to order (e.g. lower energy by maximising AA BB pairs over AB pairs). </p>
+  <p> This is captured in the free energy at a temperature T: F(x)=E(x)-TS(x), where S is the entropy. Higher entropy, lower free energy.</p>p>
   <p class="steplbl">1 &middot; Entropy: freedom of arrangement</p>
   <div class="introgrid two">
     <div class="ifig">
@@ -348,10 +350,10 @@ summary{
   <div class="introgrid one">
     <div class="ifig">
       <div class="gbox"><canvas id="gEnt" role="img"
-        aria-label="The arrangement contribution to the energy curve: a single well with its minimum in the middle"></canvas></div>
-      <p class="cap"><b>What it does to the curve.</b> Having more ways to arrange the atoms
-      always lowers the cost, and lowers it most in the middle. On its own this puts a single
-      minimum at half and half.</p>
+        aria-label="The entropy contribution -TS to the free energy F=E-TS"></canvas></div>
+      <p class="cap"><b>More entropy = lower free energy</b> Having more ways to arrange the atoms
+       raises the entropy and lowers the free energy, at most in the middle  for the binary alloy. On its own this puts a single
+      minimum at x=0.5.</p>
     </div>
   </div>
 
