@@ -321,7 +321,7 @@ summary{
   <div class="introgrid one">
     <div class="ifig">
       <div class="gbox"><canvas id="gEnt" role="img"
-        aria-label="The entropy contribution -TS to the free energy F=E-TS"></canvas></div>
+        aria-label="Entropic contribution -TS(x) to free energy F = E - TS: a well, deepest at x = 0.5"></canvas></div>
       <p class="cap"><b>More entropy = lower free energy</b> Having more ways to arrange the atoms
        raises the entropy and lowers the free energy, at most in the middle  for the binary alloy. On its own this puts a single
       minimum at x=0.5.</p>
@@ -336,7 +336,7 @@ summary{
       <div class="ibox"><canvas id="bond1" role="img"
         aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
       <div class="gbox"><canvas id="gMix" role="img"
-        aria-label="The bonding contribution to the energy curve in this case is flat"></canvas></div>
+        aria-label="Energy contribution E(x) to F = E - TS: flat, so there is no cost to mix"></canvas></div>
       <p class="cap"><b>Mixing.</b> The A&ndash;B well sits on the average, so swapping who
       sits next to whom costs nothing. The bonding contribution to the curve is flat.</p>
     </div>
@@ -344,7 +344,7 @@ summary{
       <div class="ibox"><canvas id="bond2" role="img"
         aria-label="Bond energy curves where the A-B well is shallower than the average"></canvas></div>
       <div class="gbox"><canvas id="gOrd" role="img"
-        aria-label="The bonding contribution to the energy curve in this case is a hump peaking in the middle"></canvas></div>
+        aria-label="Energy contribution E(x) to F = E - TS: a hump peaking at x = 0.5, so unlike bonds cost"></canvas></div>
       <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower than the average, so every
       unlike neighbour costs a little. A half-and-half mixture has the most of them, so the
       contribution humps up in the middle.</p>
@@ -390,7 +390,9 @@ summary{
   </div>
 
   <details>
-    <summary>Melting parameters &mdash; open these to test the negative result yourself</summary>
+    <summary>Other model parameters</summary>
+    <p class="hint" style="margin:0 0 4px">&Delta;H<sub>m</sub> is the latent heat of melting: the
+    energy needed to melt one mole of the pure metal at its melting point T<sub>m</sub>.</p>
     <div class="adv">
       <div class="knob">
         <div class="head"><label class="lbl" for="tma">T<sub>m</sub> A</label><span class="val" id="tmav">700 K</span></div>
@@ -471,12 +473,16 @@ worked out at every temperature and stacked up.</p>
 "use strict";
 const R = 8.314, N = 401, NM1 = N - 1;
 
+/* Ideal mixing entropy in units of R: s(x) = -x ln x - (1-x) ln(1-x) >= 0.
+   It enters the free energy as -T s(x), so every use below carries that minus. */
+function sMix(x) { return (x <= 0 || x >= 1) ? 0 : -x * Math.log(x) - (1 - x) * Math.log(1 - x); }
+
 /* composition grid and the T-independent pieces, precomputed once */
 const X = new Float64Array(N), XB = new Float64Array(N), XX = new Float64Array(N), S = new Float64Array(N);
 for (let i = 0; i < N; i++) {
   const x = i / NM1;
   X[i] = x; XB[i] = 1 - x; XX[i] = x * (1 - x);
-  S[i] = (i === 0 || i === NM1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+  S[i] = sMix(x);
 }
 
 /* ---- model ---- */
@@ -485,9 +491,9 @@ const TAG = new Uint8Array(N);       // 0 = liquid, 1 = solid
 function build(T, p, g, tag) {
   const cA = p.dHA * (1 - T / p.TmA), cB = p.dHB * (1 - T / p.TmB), RT = R * T;
   for (let i = 0; i < N; i++) {
-    const s = RT * S[i];
-    const gl = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
-    const gs = p.Oms * XX[i] + s;
+    const tS = RT * S[i];
+    const gl = XB[i] * cA + X[i] * cB + p.Oml * XX[i] - tS;
+    const gs = p.Oms * XX[i] - tS;
     if (gl < gs) { g[i] = gl; tag[i] = 0; } else { g[i] = gs; tag[i] = 1; }
   }
 }
@@ -659,8 +665,8 @@ function drawMix() {
   const ent = [], both = [];
   for (let i = 0; i <= M; i++) {
     const x = i / M;
-    const sx = (i === 0 || i === M) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
-    ent.push(sx); both.push(OM * x * (1 - x) + sx);
+    const sx = sMix(x);
+    ent.push(-sx); both.push(OM * x * (1 - x) - sx);
   }
   const norm = a => {
     let lo = Infinity, hi = -Infinity;
@@ -754,19 +760,41 @@ function drawBond(id, dAB) {
 
 /* The three contribution strips share one vertical scale, so a flat line really
    does mean "no cost" beside the hump next to it. */
+const GTITLE = {
+  ent:  ["Entropic contribution \u2212TS(x)", "to free energy F = E \u2212 TS"],
+  none: ["Energy contribution E(x) to F = E \u2212 TS:", "no cost to mix"],
+  ord:  ["Energy contribution E(x) to F = E \u2212 TS:", "unlike bonds cost"]
+};
+
+/* Shrink the title to fit, and only break it in two once even the smallest
+   size overflows -- the columns get narrow on a phone. */
+function stripTitle(ctx, parts, cx, top, maxw, colour) {
+  const one = parts.join(" ");
+  ctx.fillStyle = colour; ctx.textAlign = "center";
+  for (const size of [11, 10.5, 10, 9.5]) {
+    ctx.font = "600 " + size + "px " + SANS;
+    if (ctx.measureText(one).width <= maxw) { ctx.fillText(one, cx, top + 11); return; }
+  }
+  ctx.font = "600 10px " + SANS;
+  ctx.fillText(parts[0], cx, top + 8);
+  ctx.fillText(parts[1], cx, top + 20);
+}
+
 function drawG(id, kind) {
   const cv = document.getElementById(id); if (!cv) return;
   const { ctx, w, h } = fit(cv), P = pal();
   ctx.clearRect(0, 0, w, h);
-  const m = { l: 12, r: 12, t: 14, b: 18 };
+  const m = { l: 12, r: 12, t: 38, b: 18 };
   const pw = w - m.l - m.r, ph = h - m.t - m.b;
   if (pw <= 10 || ph <= 10) return;
+
+  stripTitle(ctx, GTITLE[kind], m.l + pw / 2, 2, pw - 10, P.ink);
 
   const M = 200, GLO = -0.80, GHI = 0.74, OM = 2.6;
   const val = x => {
     if (kind === "none") return 0;
     if (kind === "ord") return OM * x * (1 - x);
-    return (x <= 0 || x >= 1) ? 0 : x * Math.log(x) + (1 - x) * Math.log(1 - x);
+    return -sMix(x);
   };
   const X2 = i => m.l + (i / M) * pw, Y2 = v => m.t + (GHI - v) / (GHI - GLO) * ph;
 
@@ -783,10 +811,6 @@ function drawG(id, kind) {
   ctx.font = "10.5px " + SANS; ctx.fillStyle = P.muted;
   ctx.textAlign = "left";  ctx.fillText("x = 0", m.l, h - 5);
   ctx.textAlign = "right"; ctx.fillText("x = 1", m.l + pw, h - 5);
-  ctx.textAlign = "center";
-  const note = kind === "ent" ? "lowers the cost" : (kind === "ord" ? "raises the cost" : "no change");
-  ctx.fillStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
-  ctx.fillText(note, m.l + pw / 2, kind === "ent" ? m.t + 10 : h - 5);
 }
 
 function drawIntro() {
@@ -813,9 +837,9 @@ function drawGx(T, p) {
   const gl = new Float64Array(N), gs = new Float64Array(N);
   let lo = Infinity, hi = -Infinity;
   for (let i = 0; i < N; i++) {
-    const s = RT * S[i];
-    gl[i] = XB[i] * cA + X[i] * cB + p.Oml * XX[i] + s;
-    gs[i] = p.Oms * XX[i] + s;
+    const tS = RT * S[i];
+    gl[i] = XB[i] * cA + X[i] * cB + p.Oml * XX[i] - tS;
+    gs[i] = p.Oms * XX[i] - tS;
     lo = Math.min(lo, gl[i], gs[i]); hi = Math.max(hi, gl[i], gs[i]);
   }
   /* G_s vanishes at both pure ends, so 0 is the natural reference and the
