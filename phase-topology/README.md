@@ -17,6 +17,9 @@ G_s(x) =                                             Om_s x(1-x) + R T s(x)
 s(x)   = x ln x + (1-x) ln(1-x)
 ```
 
+Note `s(x)` is *minus* the reduced mixing entropy: `S_mix = -R s(x) >= 0`, so the term
+`+R T s(x) = -T S_mix` is negative and mixing lowers G, as it must.
+
 `Om_l = 0` throughout, so the liquid stays ideal. **`Om_s` is the only knob.**
 
 Equilibrium at each temperature is the lower convex hull of the two sampled curves, pooled.
