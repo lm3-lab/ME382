@@ -253,12 +253,6 @@ canvas{width:100%;height:100%;display:block;border-radius:5px}
 .prose em{font-style:italic}
 code, .mono{font:400 13.5px/1.5 "IBM Plex Mono", ui-monospace, monospace}
 code{background:var(--sunk);padding:1px 5px;border-radius:4px;color:var(--ink)}
-.eq{
-  background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--sol);
-  border-radius:8px;padding:14px 18px;margin:0 0 16px;overflow-x:auto;
-  font:400 13.5px/1.9 "IBM Plex Mono", ui-monospace, monospace;color:var(--ink);
-  white-space:pre
-}
 .callout{
   background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--inv);
   border-radius:8px;padding:16px 20px;margin:0 0 16px
@@ -269,25 +263,6 @@ code{background:var(--sunk);padding:1px 5px;border-radius:4px;color:var(--ink)}
   letter-spacing:.13em;text-transform:uppercase;color:var(--inv);margin-bottom:8px
 }
 
-.tablewrap{overflow-x:auto;margin:0 0 8px;border:1px solid var(--rule);border-radius:8px;background:var(--panel)}
-table{border-collapse:collapse;width:100%;font:400 13px/1.5 "IBM Plex Mono", ui-monospace, monospace}
-th,td{padding:7px 12px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-th:first-child,td:first-child{text-align:left}
-thead th{
-  font:500 10.5px/1.3 "IBM Plex Sans", system-ui, sans-serif;
-  letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
-  border-bottom:1px solid var(--rule);background:var(--sunk)
-}
-tbody tr + tr td{border-top:1px solid var(--rule-soft)}
-td.k-PERI{color:var(--inv);font-weight:500}
-td.k-eu{color:var(--liq);font-weight:500}
-td.k-lens{color:var(--muted)}
-td.k-xing{color:var(--sol);font-weight:500}
-tr.mark td{background:var(--sunk)}
-caption{
-  caption-side:bottom;text-align:left;padding:9px 12px;
-  font:400 12px/1.5 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
-}
 .tbtn{
   appearance:none;border:1px solid var(--rule);background:var(--panel);color:var(--body);
   border-radius:7px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:500
@@ -306,11 +281,7 @@ summary{
   font:500 13px/1.3 "IBM Plex Sans", system-ui, sans-serif
 }
 .adv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;padding-top:6px}
-.foot{
-  margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);
-  font:400 12.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted);
-  max-width:66ch
-}
+
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -329,9 +300,9 @@ summary{
   <h2>The free energy as a function of composition</h2>
   <p>We decide to make a binary AB alloy with a composition 0 &lt;= x &lt;= 1.</p>
   <p>There can be a mixture of separated phases: we can work out how much of each, and their composition, with the lever rule.</p>
-  <p>Whether phase separation happens or not depends on the interplay of entropy (number of distinct configurations) againt energy (bonding energy per configuration)</p>
+  <p>Whether phase separation happens or not depends on the interplay of entropy (number of distinct configurations) against energy (bonding energy per configuration)</p>
   <p>When the energy doesn't depend on composition, entropy dominates, but many mixtures prefer to order (e.g. lower energy by maximising AA BB pairs over AB pairs). </p>
-  <p> This is captured in the free energy at a temperature T: F(x)=E(x)-TS(x), where S is the entropy. Higher entropy, lower free energy.</p>p>
+  <p> This is captured in the free energy at a temperature T: F(x)=E(x)-TS(x), where S is the entropy. Higher entropy, lower free energy.</p>
   <p class="steplbl">1 &middot; Entropy: freedom of arrangement</p>
   <div class="introgrid two">
     <div class="ifig">
@@ -1032,86 +1003,6 @@ el("snap").addEventListener("click", () => {
   if (!inv) return;
   el("temp").value = Math.round(inv.T + 3);
   update();
-});
-
-/* ---- sweep table ---- */
-const SWEEP = [
-  [12, "PERI", 721.4, 0.485, 0.020, 0.515], [13, "PERI", 746.0, 0.318, 0.043, 0.682],
-  [14, "PERI", 733.0, 0.205, 0.040, 0.795], [15, "PERI", 722.9, 0.145, 0.037, 0.855],
-  [16, "PERI", 715.7, 0.107, 0.035, 0.892], [17, "PERI", 711.3, 0.083, 0.035, 0.917],
-  [18, "PERI", 707.0, 0.065, 0.033, 0.935], [19, "PERI", 702.7, 0.050, 0.033, 0.950],
-  [20, "PERI", 701.2, 0.040, 0.033, 0.960], [21, "xing", 698.3, 0.033, 0.030, 0.968],
-  [22, "xing", 696.9, 0.028, 0.025, 0.973], [23, "eu", 695.4, 0.022, 0.028, 0.978],
-  [24, "eu", 694.0, 0.018, 0.030, 0.983]
-];
-const KIND = { PERI: "Peritectic", eu: "Eutectic", xing: "Degenerate", lens: "Lens" };
-function fillSweep(rows) {
-  const tb = el("sweep").querySelector("tbody");
-  tb.innerHTML = "";
-  for (const r of rows) {
-    const tr = document.createElement("tr");
-    if (r[1] === "xing") tr.className = "mark";
-    tr.innerHTML = "<td>" + r[0].toFixed(0) + "</td><td class='k-" + r[1] + "'>" + KIND[r[1]] +
-      "</td><td>" + r[2].toFixed(1) + "</td><td>" + r[3].toFixed(3) + "</td><td>" +
-      r[4].toFixed(3) + "</td><td>" + r[5].toFixed(3) + "</td>";
-    tb.appendChild(tr);
-  }
-}
-fillSweep(SWEEP);
-el("runsweep").addEventListener("click", () => {
-  const rows = [];
-  for (let O = 12; O <= 24; O++) {
-    const q = { TmA: 700, TmB: 1400, dHA: 12000, dHB: 40000, Oml: 0, Oms: O * 1000 };
-    const r = invariant(q, 1500, 200, 900), k = classify(r);
-    const code = k === "peritectic" ? "PERI" : k === "eutectic" ? "eu" : k === "crossover" ? "xing" : "lens";
-    rows.push(r ? [O, code, r.T, r.xa, r.xL, r.xb] : [O, "lens", NaN, NaN, NaN, NaN]);
-  }
-  fillSweep(rows.filter(r => !isNaN(r[2])));
-});
-
-/* ---- negative-result grid ---- */
-const GTMB = [900, 1100, 1400, 1800, 2400];
-const GOMS = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36];
-const GRID0 = [
-  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
-  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
-  ["eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
-  ["PERI","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"],
-  ["PERI","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu","eu"]
-];
-const ABBR = { PERI: "peri", eu: "eu", xing: "xing", lens: "lens" };
-function fillGrid(cells) {
-  const t = el("grid"), hr = t.querySelector("thead tr");
-  hr.innerHTML = "<th>T<sub>m</sub><sup>B</sup></th>" +
-    GOMS.map(o => "<th>" + o + "</th>").join("");
-  const tb = t.querySelector("tbody"); tb.innerHTML = "";
-  GTMB.forEach((tm, r) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = "<td>" + tm + " K</td>" +
-      cells[r].map(c => "<td class='k-" + c + "'>" + ABBR[c] + "</td>").join("");
-    tb.appendChild(tr);
-  });
-}
-fillGrid(GRID0);
-el("rungrid").addEventListener("click", async () => {
-  const btn = el("rungrid"), stat = el("gridstat");
-  btn.disabled = true;
-  const cells = GTMB.map(() => GOMS.map(() => "lens"));
-  for (let r = 0; r < GTMB.length; r++) {
-    for (let c = 0; c < GOMS.length; c++) {
-      const q = { TmA: 700, TmB: GTMB[r], dHA: 12000, dHB: 12000, Oml: 0, Oms: GOMS[c] * 1000 };
-      const inv2 = invariant(q, Math.max(1.4 * GTMB[r], 1200), 200, 600);
-      const k = classify(inv2);
-      cells[r][c] = k === "peritectic" ? "PERI" : k === "eutectic" ? "eu" : k === "crossover" ? "xing" : "lens";
-    }
-    stat.textContent = "Row " + (r + 1) + " of " + GTMB.length + "…";
-    fillGrid(cells);
-    await new Promise(requestAnimationFrame);
-  }
-  const peri = cells.flat().filter(c => c === "PERI").length;
-  stat.textContent = "Done. " + peri + " peritectic cell" + (peri === 1 ? "" : "s") +
-    " out of " + (GTMB.length * GOMS.length) + ".";
-  btn.disabled = false;
 });
 
 /* ---- redraw on resize and theme change ---- */
