@@ -18,7 +18,7 @@ s(x)   = -x ln x - (1-x) ln(1-x)
 ```
 
 `s(x) >= 0` is the ideal mixing entropy in units of R, so `-R T s(x)` is the `-TS` term of
-`F = E - TS`.
+`G = H - TS`.
 
 `Om_l = 0` throughout, so the liquid stays ideal. **`Om_s` is the only knob.**
 

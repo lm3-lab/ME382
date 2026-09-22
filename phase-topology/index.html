@@ -302,7 +302,7 @@ summary{
   <p>There can be a mixture of separated phases: we can work out how much of each, and their composition, with the lever rule.</p>
   <p>Whether phase separation happens or not depends on the interplay of entropy (number of distinct configurations) against energy (bonding energy per configuration)</p>
   <p>When the energy doesn't depend on composition, entropy dominates, but many mixtures prefer to order (e.g. lower energy by maximising AA BB pairs over AB pairs). </p>
-  <p> This is captured in the free energy at a temperature T: F(x)=E(x)-TS(x), where S is the entropy. Higher entropy, lower free energy.</p>
+  <p> This is captured in the free energy at a temperature T: G(x)=H(x)-TS(x), where S is the entropy. Higher entropy, lower free energy.</p>
   <p class="steplbl">1 &middot; Entropy: freedom of arrangement</p>
   <div class="introgrid two">
     <div class="ifig">
@@ -321,14 +321,14 @@ summary{
   <div class="introgrid one">
     <div class="ifig">
       <div class="gbox"><canvas id="gEnt" role="img"
-        aria-label="Entropic contribution -TS(x) to free energy F = E - TS: a well, deepest at x = 0.5"></canvas></div>
+        aria-label="Entropic contribution -TS(x) to free energy G = H - TS: a well, deepest at x = 0.5"></canvas></div>
       <p class="cap"><b>More entropy = lower free energy</b> Having more ways to arrange the atoms
        raises the entropy and lowers the free energy, at most in the middle  for the binary alloy. On its own this puts a single
       minimum at x=0.5.</p>
     </div>
   </div>
 
-  <p class="steplbl">2 &middot; Energy: does it cost to mix species?</p>
+  <p class="steplbl">2 &middot; Enthalpy: does it cost to mix species?</p>
   <p>We have considered the bonding curve for single element systems. For binaries, what matters is how an A&ndash;B bond compares with the
   average of an A&ndash;A and a B&ndash;B, marked here as a dashed line.</p>
   <div class="introgrid two">
@@ -336,7 +336,7 @@ summary{
       <div class="ibox"><canvas id="bond1" role="img"
         aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
       <div class="gbox"><canvas id="gMix" role="img"
-        aria-label="Energy contribution E(x) to F = E - TS: flat, so there is no cost to mix"></canvas></div>
+        aria-label="Enthalpy contribution H(x) to G = H - TS: flat, so there is no cost to mix"></canvas></div>
       <p class="cap"><b>Mixing.</b> The A&ndash;B well sits on the average, so swapping who
       sits next to whom costs nothing. The bonding contribution to the curve is flat.</p>
     </div>
@@ -344,7 +344,7 @@ summary{
       <div class="ibox"><canvas id="bond2" role="img"
         aria-label="Bond energy curves where the A-B well is shallower than the average"></canvas></div>
       <div class="gbox"><canvas id="gOrd" role="img"
-        aria-label="Energy contribution E(x) to F = E - TS: a hump peaking at x = 0.5, so unlike bonds cost"></canvas></div>
+        aria-label="Enthalpy contribution H(x) to G = H - TS: a hump peaking at x = 0.5, so unlike bonds cost"></canvas></div>
       <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower than the average, so every
       unlike neighbour costs a little. A half-and-half mixture has the most of them, so the
       contribution humps up in the middle.</p>
@@ -761,9 +761,9 @@ function drawBond(id, dAB) {
 /* The three contribution strips share one vertical scale, so a flat line really
    does mean "no cost" beside the hump next to it. */
 const GTITLE = {
-  ent:  ["Entropic contribution \u2212TS(x)", "to free energy F = E \u2212 TS"],
-  none: ["Energy contribution E(x) to F = E \u2212 TS:", "no cost to mix"],
-  ord:  ["Energy contribution E(x) to F = E \u2212 TS:", "unlike bonds cost"]
+  ent:  ["Entropic contribution \u2212TS(x)", "to free energy G = H \u2212 TS"],
+  none: ["Enthalpy contribution H(x) to G = H \u2212 TS:", "no cost to mix"],
+  ord:  ["Enthalpy contribution H(x) to G = H \u2212 TS:", "unlike bonds cost"]
 };
 
 /* Shrink the title to fit, and only break it in two once even the smallest
