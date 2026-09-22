@@ -321,7 +321,7 @@ summary{
   <div class="introgrid one">
     <div class="ifig">
       <div class="gbox"><canvas id="gEnt" role="img"
-        aria-label="The entropy contribution -TS to the free energy F=E-TS"></canvas></div>
+        aria-label="Entropic contribution -TS(x) to free energy F = E - TS: a well, deepest at x = 0.5"></canvas></div>
       <p class="cap"><b>More entropy = lower free energy</b> Having more ways to arrange the atoms
        raises the entropy and lowers the free energy, at most in the middle  for the binary alloy. On its own this puts a single
       minimum at x=0.5.</p>
@@ -336,7 +336,7 @@ summary{
       <div class="ibox"><canvas id="bond1" role="img"
         aria-label="Bond energy curves where the A-B well is as deep as the average of A-A and B-B"></canvas></div>
       <div class="gbox"><canvas id="gMix" role="img"
-        aria-label="The bonding contribution to the energy curve in this case is flat"></canvas></div>
+        aria-label="Energy contribution E(x) to F = E - TS: flat, so there is no cost to mix"></canvas></div>
       <p class="cap"><b>Mixing.</b> The A&ndash;B well sits on the average, so swapping who
       sits next to whom costs nothing. The bonding contribution to the curve is flat.</p>
     </div>
@@ -344,7 +344,7 @@ summary{
       <div class="ibox"><canvas id="bond2" role="img"
         aria-label="Bond energy curves where the A-B well is shallower than the average"></canvas></div>
       <div class="gbox"><canvas id="gOrd" role="img"
-        aria-label="The bonding contribution to the energy curve in this case is a hump peaking in the middle"></canvas></div>
+        aria-label="Energy contribution E(x) to F = E - TS: a hump peaking at x = 0.5, so unlike bonds cost"></canvas></div>
       <p class="cap"><b>Ordering.</b> The A&ndash;B well is shallower than the average, so every
       unlike neighbour costs a little. A half-and-half mixture has the most of them, so the
       contribution humps up in the middle.</p>
@@ -756,13 +756,35 @@ function drawBond(id, dAB) {
 
 /* The three contribution strips share one vertical scale, so a flat line really
    does mean "no cost" beside the hump next to it. */
+const GTITLE = {
+  ent:  ["Entropic contribution \u2212TS(x)", "to free energy F = E \u2212 TS"],
+  none: ["Energy contribution E(x) to F = E \u2212 TS:", "no cost to mix"],
+  ord:  ["Energy contribution E(x) to F = E \u2212 TS:", "unlike bonds cost"]
+};
+
+/* Shrink the title to fit, and only break it in two once even the smallest
+   size overflows -- the columns get narrow on a phone. */
+function stripTitle(ctx, parts, cx, top, maxw, colour) {
+  const one = parts.join(" ");
+  ctx.fillStyle = colour; ctx.textAlign = "center";
+  for (const size of [11, 10.5, 10, 9.5]) {
+    ctx.font = "600 " + size + "px " + SANS;
+    if (ctx.measureText(one).width <= maxw) { ctx.fillText(one, cx, top + 11); return; }
+  }
+  ctx.font = "600 10px " + SANS;
+  ctx.fillText(parts[0], cx, top + 8);
+  ctx.fillText(parts[1], cx, top + 20);
+}
+
 function drawG(id, kind) {
   const cv = document.getElementById(id); if (!cv) return;
   const { ctx, w, h } = fit(cv), P = pal();
   ctx.clearRect(0, 0, w, h);
-  const m = { l: 12, r: 12, t: 14, b: 18 };
+  const m = { l: 12, r: 12, t: 38, b: 18 };
   const pw = w - m.l - m.r, ph = h - m.t - m.b;
   if (pw <= 10 || ph <= 10) return;
+
+  stripTitle(ctx, GTITLE[kind], m.l + pw / 2, 2, pw - 10, P.ink);
 
   const M = 200, GLO = -0.80, GHI = 0.74, OM = 2.6;
   const val = x => {
@@ -785,10 +807,6 @@ function drawG(id, kind) {
   ctx.font = "10.5px " + SANS; ctx.fillStyle = P.muted;
   ctx.textAlign = "left";  ctx.fillText("x = 0", m.l, h - 5);
   ctx.textAlign = "right"; ctx.fillText("x = 1", m.l + pw, h - 5);
-  ctx.textAlign = "center";
-  const note = kind === "ent" ? "lowers the cost" : (kind === "ord" ? "raises the cost" : "no change");
-  ctx.fillStyle = kind === "ent" ? P.sol : (kind === "ord" ? P.bond : P.muted);
-  ctx.fillText(note, m.l + pw / 2, kind === "ent" ? m.t + 10 : h - 5);
 }
 
 function drawIntro() {
