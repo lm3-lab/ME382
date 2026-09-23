@@ -25,6 +25,17 @@ dependencies.
 Run `python3 phase-topology/verify_topology.py` to regenerate the parameter sweeps. The
 JavaScript in the page reproduces its output exactly.
 
+## `yield-criteria/` — von Mises vs Tresca
+
+An interactive page comparing the two yield criteria in the σ₁–σ₂ plane. Set a plane
+stress state (σxx, σyy, τxy), optionally add an out-of-plane normal stress, and read off the
+equivalent stresses and safety factors. A second panel sizes the wall of a thin-walled
+cylinder (R = 1 m, P = 5 MPa, σY = 800 MPa) with optional torque, showing t_min for each
+criterion.
+
+**Open `yield-criteria/index.html` in any browser.** No build step; KaTeX is loaded from a
+CDN for the equations.
+
 ## `dislocations/` — why a crystal is weaker than its bonds
 
 Two molecular dynamics demonstrations in BCC iron, published as movies on the
