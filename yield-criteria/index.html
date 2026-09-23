@@ -63,7 +63,10 @@ h2{
 .llm .credit{padding-top:8px;border-top:1px dashed var(--rule);color:var(--muted);font-size:12.5px}
 .llm b,.llm strong{font-weight:600;color:var(--ink)}
 .eqs{display:flex;flex-wrap:wrap;gap:8px 32px;margin-bottom:22px;color:var(--ink)}
-.eqs > div{white-space:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden}
+.eqs > div,.given{white-space:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden;
+  padding:2px 4px 4px 0;scrollbar-width:none}
+.eqs > div::-webkit-scrollbar,.given::-webkit-scrollbar{display:none}
+.ov{text-decoration:overline}
 .key{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
 section{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:18px;margin-bottom:18px}
 .row{display:grid;grid-template-columns:minmax(240px,300px) 1fr;gap:20px;align-items:start}
@@ -80,7 +83,7 @@ input[type=range]{width:100%;accent-color:var(--sol)}
 .out b{font-weight:600}
 .vm{color:var(--sol)} .tr{color:var(--liq)}
 .ok{color:var(--ok)} .bad{color:var(--bad)}
-.given{color:var(--muted);margin-bottom:12px;overflow-x:auto;overflow-y:hidden}
+.given{color:var(--muted);margin-bottom:12px}
 svg text{fill:var(--muted);font-size:11px;font-family:inherit}
 svg .axis{stroke:var(--muted);stroke-width:1}
 svg .grid{stroke:var(--grid);stroke-width:1}
@@ -111,8 +114,8 @@ svg .diag{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4;opacity:.6}
   </div>
 
   <div class="eqs">
-    <div><span class="key" style="background:var(--sol)"></span><span data-tex="\sigma_{VM}=\sqrt{\tfrac12\left[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\right]}\le\sigma_Y"></span></div>
-    <div><span class="key" style="background:var(--liq)"></span><span data-tex="\sigma_{T}=\max\left(|\sigma_1-\sigma_2|,\,|\sigma_2-\sigma_3|,\,|\sigma_3-\sigma_1|\right)\le\sigma_Y"></span></div>
+    <div><span class="key" style="background:var(--sol)"></span><span data-tex="\bar{\sigma}_H=\sqrt{\tfrac12\left[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\right]}\le\sigma_Y"></span></div>
+    <div><span class="key" style="background:var(--liq)"></span><span data-tex="\bar{\sigma}_S=\max\left(|\sigma_1-\sigma_2|,\,|\sigma_2-\sigma_3|,\,|\sigma_3-\sigma_1|\right)\le\sigma_Y"></span></div>
     <div><span data-tex="n=\sigma_Y/\sigma_{eq}\ \text{(safety factor)}"></span></div>
     <div><span data-tex="\sigma_{1,2}=\tfrac{\sigma_{xx}+\sigma_{yy}}{2}\pm\sqrt{\left(\tfrac{\sigma_{xx}-\sigma_{yy}}{2}\right)^2+\tau_{xy}^2}"></span></div>
   </div>
@@ -250,8 +253,8 @@ function update1() {
   yieldPlot($('plot1'), Y, s3, L, [{ p: [s1, s2], color: 'var(--ink)' }]);
   $('out1').innerHTML =
     `<span>σ₁, σ₂, σ₃</span><span>${fmt(s1)}, ${fmt(s2)}, ${fmt(s3)} MPa</span>` +
-    `<b class="vm">σ<sub>VM</sub></b><span>${fmt(v)} MPa · n = ${fmt(Y / v, 2)} · ${state(v <= Y)}</span>` +
-    `<b class="tr">σ<sub>T</sub></b><span>${fmt(t)} MPa · n = ${fmt(Y / t, 2)} · ${state(t <= Y)}</span>`;
+    `<b class="vm"><span class="ov">σ</span><sub>H</sub></b><span>${fmt(v)} MPa · n = ${fmt(Y / v, 2)} · ${state(v <= Y)}</span>` +
+    `<b class="tr"><span class="ov">σ</span><sub>S</sub></b><span>${fmt(t)} MPa · n = ${fmt(Y / t, 2)} · ${state(t <= Y)}</span>`;
 }
 
 // ---------- Panel 2: thin-walled cylinder ----------
@@ -309,8 +312,8 @@ function update2() {
 
   $('out2').innerHTML =
     `<span>σ₁, σ₂, σ₃</span><span>${fmt(c.s1)}, ${fmt(c.s2)}, ${fmt(c.s3)} MPa</span>` +
-    `<b class="vm">σ<sub>VM</sub></b><span>${fmt(c.vm)} MPa · ${state(c.vm <= target)}</span>` +
-    `<b class="tr">σ<sub>T</sub></b><span>${fmt(c.tr)} MPa · ${state(c.tr <= target)}</span>` +
+    `<b class="vm"><span class="ov">σ</span><sub>H</sub></b><span>${fmt(c.vm)} MPa · ${state(c.vm <= target)}</span>` +
+    `<b class="tr"><span class="ov">σ</span><sub>S</sub></b><span>${fmt(c.tr)} MPa · ${state(c.tr <= target)}</span>` +
     `<b class="vm">t<sub>min</sub></b><span>${fmt(tv, 2)} mm</span>` +
     `<b class="tr">t<sub>min</sub></b><span>${fmt(tt, 2)} mm</span>`;
 }
