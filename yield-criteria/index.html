@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yield criteria &mdash; ME 382</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f7f8fa; --panel:#ffffff; --ink:#171b20; --body:#333b44; --muted:#6d7883;
+  --rule:#d9dee4; --grid:#eceff2; --liq:#d97a2b; --sol:#3d7ea6; --ok:#2e8a55; --bad:#c43d3d;
+  --sol-fill:rgba(61,126,166,.09); --liq-fill:rgba(217,122,43,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0f1215; --panel:#171b20; --ink:#eef1f4; --body:#c3ccd5; --muted:#8c97a3;
+    --rule:#2b333b; --grid:#21272d; --liq:#e8933f; --sol:#6aa8cb; --ok:#5cc27d; --bad:#ff6b74;
+    --sol-fill:rgba(106,168,203,.10); --liq-fill:rgba(232,147,63,.08);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0f1215; --panel:#171b20; --ink:#eef1f4; --body:#c3ccd5; --muted:#8c97a3;
+  --rule:#2b333b; --grid:#21272d; --liq:#e8933f; --sol:#6aa8cb; --ok:#5cc27d; --bad:#ff6b74;
+  --sol-fill:rgba(106,168,203,.10); --liq-fill:rgba(232,147,63,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--body);
+  font:14px/1.5 "IBM Plex Sans", system-ui, sans-serif;
+  padding-inline:16px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding-block:48px 64px}
+.eyebrow{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px
+}
+.eyebrow a{color:inherit;text-decoration:none;border-bottom:1px solid var(--rule)}
+.eyebrow a:hover{color:var(--sol)}
+h1{
+  font:600 clamp(30px,5vw,44px)/1.1 Spectral, Georgia, serif;
+  color:var(--ink);margin:0 0 18px;letter-spacing:-.01em
+}
+h2{
+  font:500 11px/1 "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--rule)
+}
+.llm{
+  background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--liq);
+  border-radius:8px;padding:14px 18px;margin:4px 0 22px;max-width:72ch;
+  font:400 13.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--body)
+}
+.llm p{margin:0 0 8px;max-width:none;font-size:inherit}
+.llm p:last-child{margin:0}
+.llm .credit{padding-top:8px;border-top:1px dashed var(--rule);color:var(--muted);font-size:12.5px}
+.llm b,.llm strong{font-weight:600;color:var(--ink)}
+.eqs{display:flex;flex-wrap:wrap;gap:8px 32px;margin-bottom:22px;color:var(--ink)}
+.eqs > div{white-space:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden}
+.key{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
+section{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:18px;margin-bottom:18px}
+.row{display:grid;grid-template-columns:minmax(240px,300px) 1fr;gap:20px;align-items:start}
+.plots{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.row,.plots{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block;max-width:460px;margin:0 auto}
+.ctl{margin-bottom:10px}
+.ctl label{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.ctl label span:last-child{color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--sol)}
+.chk{display:flex;align-items:center;gap:6px;margin:4px 0 10px}
+.out{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-variant-numeric:tabular-nums;
+     border-top:1px solid var(--rule);padding-top:10px;margin-top:6px}
+.out b{font-weight:600}
+.vm{color:var(--sol)} .tr{color:var(--liq)}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
+.given{color:var(--muted);margin-bottom:12px;overflow-x:auto;overflow-y:hidden}
+svg text{fill:var(--muted);font-size:11px;font-family:inherit}
+svg .axis{stroke:var(--muted);stroke-width:1}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .diag{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4;opacity:.6}
+.foot{
+  margin-top:40px;padding-top:18px;border-top:1px solid var(--rule);
+  font:400 12.5px/1.6 "IBM Plex Sans", system-ui, sans-serif;color:var(--muted)
+}
+.foot a{color:var(--sol)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow"><a href="../">ME 382</a> &nbsp;/&nbsp; Yield criteria</p>
+  <h1>Von Mises vs Tresca</h1>
+  <div class="llm" role="note">
+    <p><strong>A note on LLM usage.</strong> These are meant to be illustrative examples of
+    some key concepts in ME382 which will be expanded over time. All code is generated by an
+    LLM under human guidance; we provide a human/LLM attribution for this page. The
+    intention, as time allows, is for the amount of LLM text to converge to zero.</p>
+    <p>Please email tswin &ldquo;at&rdquo; umich.edu with any accuracy concerns!</p>
+    <p class="credit"><b>Human (Tom):</b> definition and tight spec for code, requesting plane
+    stress state with optional off-plane normal stress, showing Von Mises and Tresca yield
+    surface in 2D, and application to thin walled cylinder design.<br><b>LLM:</b> interactive
+    code demonstration.</p>
+  </div>
+
+  <div class="eqs">
+    <div><span class="key" style="background:var(--sol)"></span><span data-tex="\sigma_{VM}=\sqrt{\tfrac12\left[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\right]}\le\sigma_Y"></span></div>
+    <div><span class="key" style="background:var(--liq)"></span><span data-tex="\sigma_{T}=\max\left(|\sigma_1-\sigma_2|,\,|\sigma_2-\sigma_3|,\,|\sigma_3-\sigma_1|\right)\le\sigma_Y"></span></div>
+    <div><span data-tex="\sigma_{1,2}=\tfrac{\sigma_{xx}+\sigma_{yy}}{2}\pm\sqrt{\left(\tfrac{\sigma_{xx}-\sigma_{yy}}{2}\right)^2+\tau_{xy}^2}"></span></div>
+  </div>
+
+  <section>
+    <h2>Stress state</h2>
+    <div class="row">
+      <div>
+        <div class="ctl"><label><span data-tex="\sigma_{xx}"></span><span id="sxV"></span></label><input id="sx" type="range" min="-1200" max="1200" step="10" value="500"></div>
+        <div class="ctl"><label><span data-tex="\sigma_{yy}"></span><span id="syV"></span></label><input id="sy" type="range" min="-1200" max="1200" step="10" value="200"></div>
+        <div class="ctl"><label><span data-tex="\tau_{xy}"></span><span id="txyV"></span></label><input id="txy" type="range" min="-800" max="800" step="10" value="150"></div>
+        <div class="ctl"><label><span data-tex="\sigma_Y"></span><span id="YV"></span></label><input id="Y" type="range" min="100" max="1500" step="10" value="800"></div>
+        <label class="chk"><input id="szOn" type="checkbox"> <span data-tex="\sigma_{zz}\ne0"></span></label>
+        <div class="ctl" id="szBox"><label><span data-tex="\sigma_{zz}=\sigma_3"></span><span id="szV"></span></label><input id="sz" type="range" min="-1200" max="1200" step="10" value="-300" disabled></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <svg id="plot1" viewBox="0 0 420 420" role="img" aria-label="Yield surfaces in principal stress plane"></svg>
+    </div>
+  </section>
+
+  <section>
+    <h2>Thin-walled cylinder</h2>
+    <div class="given"><span data-tex="R=1\,\mathrm{m},\; P=5\,\mathrm{MPa},\; \sigma_Y=800\,\mathrm{MPa}\qquad \sigma_\theta=\frac{PR}{t},\;\; \sigma_z=\frac{PR}{2t},\;\; \tau_{\theta z}=\frac{T}{2\pi R^2 t}"></span></div>
+    <div class="row">
+      <div>
+        <div class="ctl"><label><span>t</span><span id="tV"></span></label><input id="t" type="range" min="2" max="20" step="0.05" value="8"></div>
+        <div class="ctl"><label><span>T</span><span id="TV"></span></label><input id="T" type="range" min="0" max="40" step="0.5" value="0"></div>
+        <div class="ctl"><label><span>n</span><span id="nV"></span></label><input id="n" type="range" min="1" max="3" step="0.05" value="1"></div>
+        <label class="chk"><input id="srOn" type="checkbox"> <span data-tex="\sigma_r=-P\ \text{(inner wall)}"></span></label>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="plots">
+        <svg id="plot2" viewBox="0 0 420 420" role="img" aria-label="Load path of the cylinder on the yield surfaces"></svg>
+        <svg id="plot3" viewBox="0 0 420 420" role="img" aria-label="Equivalent stress versus wall thickness"></svg>
+      </div>
+    </div>
+  </section>
+<p class="foot">Source on <a href="https://github.com/lm3-lab/ME382">GitHub</a>.</p>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const W = 420, H = 420, M = { l: 52, r: 16, t: 16, b: 40 };
+
+const principal = (sx, sy, t) => { const c = (sx + sy) / 2, r = Math.hypot((sx - sy) / 2, t); return [c + r, c - r]; };
+const vm = (a, b, c) => Math.sqrt(0.5 * ((a - b) ** 2 + (b - c) ** 2 + (c - a) ** 2));
+const tr = (a, b, c) => Math.max(Math.abs(a - b), Math.abs(b - c), Math.abs(c - a));
+
+// Yield loci in the (σ1, σ2) plane at fixed σ3 = s: plane-stress shapes shifted along (1,1) by s.
+function vmLocus(Y, s, n = 200) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const th = 2 * Math.PI * i / n, u = Math.SQRT2 * Y * Math.cos(th), v = Math.sqrt(2 / 3) * Y * Math.sin(th);
+    pts.push([s + (u + v) / Math.SQRT2, s + (u - v) / Math.SQRT2]);
+  }
+  return pts;
+}
+const trLocus = (Y, s) => [[Y, 0], [Y, Y], [0, Y], [-Y, 0], [-Y, -Y], [0, -Y], [Y, 0]].map(([a, b]) => [a + s, b + s]);
+
+function niceStep(range, target = 5) {
+  const raw = range / target, p = 10 ** Math.floor(Math.log10(raw)), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, s, anchor = 'middle', extra = {}) {
+  const t = el('text', { x, y, 'text-anchor': anchor, ...extra }, parent); t.textContent = s; return t;
+}
+const fmt = (v, d = 0) => (Math.abs(v) < 0.5 * 10 ** -d ? 0 : v).toFixed(d);
+
+// Generic axes; returns coordinate mappers.
+function axes(svg, [x0, x1], [y0, y1], xl, yl, origin) {
+  svg.innerHTML = '';
+  const X = v => M.l + (v - x0) / (x1 - x0) * (W - M.l - M.r);
+  const Yp = v => H - M.b - (v - y0) / (y1 - y0) * (H - M.t - M.b);
+  const clip = el('clipPath', { id: svg.id + 'c' }, el('defs', {}, svg));
+  el('rect', { x: M.l, y: M.t, width: W - M.l - M.r, height: H - M.t - M.b }, clip);
+  const sx = niceStep(x1 - x0), sy = niceStep(y1 - y0);
+  for (let v = Math.ceil(x0 / sx) * sx; v <= x1 + 1e-9; v += sx) {
+    el('line', { x1: X(v), x2: X(v), y1: M.t, y2: H - M.b, class: 'grid' }, svg);
+    text(svg, X(v), H - M.b + 14, fmt(v));
+  }
+  for (let v = Math.ceil(y0 / sy) * sy; v <= y1 + 1e-9; v += sy) {
+    el('line', { x1: M.l, x2: W - M.r, y1: Yp(v), y2: Yp(v), class: 'grid' }, svg);
+    text(svg, M.l - 6, Yp(v) + 4, fmt(v), 'end');
+  }
+  if (origin) {
+    el('line', { x1: X(0), x2: X(0), y1: M.t, y2: H - M.b, class: 'axis' }, svg);
+    el('line', { x1: M.l, x2: W - M.r, y1: Yp(0), y2: Yp(0), class: 'axis' }, svg);
+  } else {
+    el('line', { x1: M.l, x2: M.l, y1: M.t, y2: H - M.b, class: 'axis' }, svg);
+    el('line', { x1: M.l, x2: W - M.r, y1: H - M.b, y2: H - M.b, class: 'axis' }, svg);
+  }
+  text(svg, (M.l + W - M.r) / 2, H - 6, xl);
+  text(svg, 14, (M.t + H - M.b) / 2, yl, 'middle', { transform: `rotate(-90 14 ${(M.t + H - M.b) / 2})` });
+  const g = el('g', { 'clip-path': `url(#${svg.id}c)` }, svg);
+  return { X, Y: Yp, g };
+}
+const path = (pts, X, Y) => pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join('');
+
+// Principal-plane yield plot. marks: [{p:[s1,s2], color, r}], load: polyline in (s1,s2).
+function yieldPlot(svg, Y, s, L, marks = [], load = null) {
+  const { X, Y: Yp, g } = axes(svg, [-L, L], [-L, L], 'σ₁ (MPa)', 'σ₂ (MPa)', true);
+  el('line', { x1: X(-L), y1: Yp(-L), x2: X(L), y2: Yp(L), class: 'diag' }, g);
+  el('path', { d: path(vmLocus(Y, s), X, Yp), fill: 'var(--sol-fill)', stroke: 'var(--sol)', 'stroke-width': 2 }, g);
+  el('path', { d: path(trLocus(Y, s), X, Yp), fill: 'var(--liq-fill)', stroke: 'var(--liq)', 'stroke-width': 2, 'stroke-linejoin': 'round' }, g);
+  if (s !== 0) {
+    el('path', { d: path(vmLocus(Y, 0), X, Yp), fill: 'none', stroke: 'var(--sol)', 'stroke-width': 1, 'stroke-dasharray': '4 4', opacity: .5 }, g);
+    el('path', { d: path(trLocus(Y, 0), X, Yp), fill: 'none', stroke: 'var(--liq)', 'stroke-width': 1, 'stroke-dasharray': '4 4', opacity: .5 }, g);
+  }
+  if (load) el('path', { d: path(load, X, Yp), fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.25, 'stroke-dasharray': '2 3', opacity: .7 }, g);
+  for (const m of marks) {
+    el('circle', { cx: X(m.p[0]), cy: Yp(m.p[1]), r: m.r || 5, fill: m.color, stroke: 'var(--panel)', 'stroke-width': 1.5 }, g);
+  }
+}
+
+function state(ok) { return ok ? '<span class="ok">safe</span>' : '<span class="bad">yields</span>'; }
+
+// ---------- Panel 1: arbitrary plane stress (+ optional σzz) ----------
+function update1() {
+  const sx = +$('sx').value, sy = +$('sy').value, txy = +$('txy').value, Y = +$('Y').value;
+  const on = $('szOn').checked; $('sz').disabled = !on; $('szBox').style.opacity = on ? 1 : .45;
+  const s3 = on ? +$('sz').value : 0;
+  $('sxV').textContent = sx + ' MPa'; $('syV').textContent = sy + ' MPa'; $('txyV').textContent = txy + ' MPa';
+  $('YV').textContent = Y + ' MPa'; $('szV').textContent = s3 + ' MPa';
+  const [s1, s2] = principal(sx, sy, txy);
+  const v = vm(s1, s2, s3), t = tr(s1, s2, s3);
+  const L = Math.max(1.35 * (1.16 * Y + Math.abs(s3)), 1.1 * Math.max(Math.abs(s1), Math.abs(s2)));
+  yieldPlot($('plot1'), Y, s3, L, [{ p: [s1, s2], color: 'var(--ink)' }]);
+  $('out1').innerHTML =
+    `<span>σ₁, σ₂, σ₃</span><span>${fmt(s1)}, ${fmt(s2)}, ${fmt(s3)} MPa</span>` +
+    `<b class="vm">σ<sub>VM</sub></b><span>${fmt(v)} MPa · n = ${fmt(Y / v, 2)} · ${state(v <= Y)}</span>` +
+    `<b class="tr">σ<sub>T</sub></b><span>${fmt(t)} MPa · n = ${fmt(Y / t, 2)} · ${state(t <= Y)}</span>`;
+}
+
+// ---------- Panel 2: thin-walled cylinder ----------
+const R = 1, P = 5, SY = 800;
+function cyl(tmm, T, withSr) {
+  const t = tmm / 1000;
+  const sh = P * R / t, sa = P * R / (2 * t), tau = T / (2 * Math.PI * R * R * t); // MPa (T in MN·m)
+  const [s1, s2] = principal(sh, sa, tau), s3 = withSr ? -P : 0;
+  return { s1, s2, s3, vm: vm(s1, s2, s3), tr: tr(s1, s2, s3) };
+}
+function tMin(key, T, withSr, target) {
+  let lo = 0.01, hi = 1000;           // mm; σ_eq decreases monotonically with t
+  if (cyl(hi, T, withSr)[key] > target) return NaN;
+  for (let i = 0; i < 80; i++) { const m = Math.sqrt(lo * hi); cyl(m, T, withSr)[key] > target ? lo = m : hi = m; }
+  return hi;
+}
+function update2() {
+  const tmm = +$('t').value, T = +$('T').value, n = +$('n').value, withSr = $('srOn').checked;
+  $('tV').textContent = tmm.toFixed(2) + ' mm'; $('TV').textContent = T + ' MN·m'; $('nV').textContent = n.toFixed(2);
+  const target = SY / n, c = cyl(tmm, T, withSr);
+  const tv = tMin('vm', T, withSr, target), tt = tMin('tr', T, withSr, target);
+  const tmax = Math.max(20, 1.3 * Math.max(tv, tt));
+  $('t').max = Math.ceil(tmax);
+
+  // Load path as t varies, on the yield surfaces.
+  const load = [];
+  for (let i = 0; i <= 120; i++) { const q = cyl(1 + (tmax - 1) * (i / 120) ** 0.5, T, withSr); load.push([q.s1, q.s2]); }
+  const cv = cyl(tv, T, withSr), ct = cyl(tt, T, withSr);
+  const s3 = withSr ? -P : 0;
+  const L = Math.max(1.35 * 1.16 * SY, 1.1 * Math.max(Math.abs(c.s1), Math.abs(c.s2)));
+  yieldPlot($('plot2'), SY, s3, L, [
+    { p: [cv.s1, cv.s2], color: 'var(--sol)', r: 4 },
+    { p: [ct.s1, ct.s2], color: 'var(--liq)', r: 4 },
+    { p: [c.s1, c.s2], color: 'var(--ink)' },
+  ], load);
+
+  // Equivalent stress vs wall thickness.
+  const svg = $('plot3'), ymax = 2.5 * SY;
+  const { X, Y, g } = axes(svg, [0, tmax], [0, ymax], 't (mm)', 'σ_eq (MPa)', false);
+  for (const [key, col] of [['vm', 'var(--sol)'], ['tr', 'var(--liq)']]) {
+    const pts = [];
+    for (let i = 0; i <= 200; i++) { const tt_ = 0.5 + (tmax - 0.5) * i / 200; pts.push([tt_, Math.min(cyl(tt_, T, withSr)[key], 10 * ymax)]); }
+    el('path', { d: path(pts, X, Y), fill: 'none', stroke: col, 'stroke-width': 2 }, g);
+  }
+  el('line', { x1: X(0), x2: X(tmax), y1: Y(target), y2: Y(target), stroke: 'var(--ink)', 'stroke-dasharray': '5 4', opacity: .6 }, g);
+  text(g, X(tmax) - 4, Y(target) - 5, n === 1 ? 'σ_Y' : 'σ_Y / n', 'end');
+  for (const [tm, col] of [[tv, 'var(--sol)'], [tt, 'var(--liq)']]) {
+    if (!isFinite(tm)) continue;
+    el('line', { x1: X(tm), x2: X(tm), y1: Y(0), y2: Y(target), stroke: col, 'stroke-dasharray': '3 3' }, g);
+    el('circle', { cx: X(tm), cy: Y(target), r: 4, fill: col, stroke: 'var(--panel)', 'stroke-width': 1.5 }, g);
+  }
+  el('line', { x1: X(tmm), x2: X(tmm), y1: Y(0), y2: Y(ymax), stroke: 'var(--ink)', 'stroke-width': 1, opacity: .5 }, g);
+  el('circle', { cx: X(tmm), cy: Y(c.vm), r: 4, fill: 'var(--sol)', stroke: 'var(--panel)', 'stroke-width': 1.5 }, g);
+  el('circle', { cx: X(tmm), cy: Y(c.tr), r: 4, fill: 'var(--liq)', stroke: 'var(--panel)', 'stroke-width': 1.5 }, g);
+
+  $('out2').innerHTML =
+    `<span>σ₁, σ₂, σ₃</span><span>${fmt(c.s1)}, ${fmt(c.s2)}, ${fmt(c.s3)} MPa</span>` +
+    `<b class="vm">σ<sub>VM</sub></b><span>${fmt(c.vm)} MPa · ${state(c.vm <= target)}</span>` +
+    `<b class="tr">σ<sub>T</sub></b><span>${fmt(c.tr)} MPa · ${state(c.tr <= target)}</span>` +
+    `<b class="vm">t<sub>min</sub></b><span>${fmt(tv, 2)} mm</span>` +
+    `<b class="tr">t<sub>min</sub></b><span>${fmt(tt, 2)} mm</span>`;
+}
+
+for (const id of ['sx', 'sy', 'txy', 'Y', 'sz', 'szOn']) { $(id).addEventListener('input', update1); $(id).addEventListener('change', update1); }
+for (const id of ['t', 'T', 'n', 'srOn']) { $(id).addEventListener('input', update2); $(id).addEventListener('change', update2); }
+update1(); update2();
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-tex]').forEach(e => {
+    try { katex.render(e.dataset.tex, e, { throwOnError: false }); } catch { e.textContent = e.dataset.tex; }
+  });
+});
+</script>
+</body>
+</html>
